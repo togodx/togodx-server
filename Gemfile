@@ -16,6 +16,9 @@ gem 'sqlite3', '~> 1.4'
 gem 'puma', '~> 5.0'
 gem 'rack-cors', '~> 1.1'
 
+# extension
+gem 'awesome_nested_set', '~> 3.4'
+
 # template engine
 gem 'jbuilder', '~> 2.11'
 
