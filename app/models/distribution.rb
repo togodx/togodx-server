@@ -19,6 +19,12 @@ class Distribution < ApplicationRecord
     sort_breakdown(list, mode)
   end
 
+  # TODO: should receive lower and upper values (insetad of "10-20") from controller
+  def entries(range)
+    lower, upper = range.split('-').map{|x| x.to_i / binopts[:scale]}
+    self.class.where(distribution_value: lower...upper).map{|x| x.distribution}
+  end
+
   private
 
   def bin_split(bin)
@@ -38,8 +44,6 @@ class Distribution < ApplicationRecord
   end
 
   def count_breakdown(label, min, max = Float::INFINITY)
-    # self: instance (table#)
-    # self.class: Distribution
     count = self.class.where(distribution_value: min...max).count
     #{ label: label, count: count }
     { label: label, count: count, categoryId: label.sub(/\s.*/, ''), hasChild: true }

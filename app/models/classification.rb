@@ -37,11 +37,11 @@ class Classification < ApplicationRecord
   def count_breakdown(record)
     label = record.classification_label
     count = record.descendants.where(leaf: true).count
+    #has_child = record.children.where(leaf: false).count > 0
     tip = children_without_leaf(record).count == 0
-    # * renamed categoryId to node (or classificaiton, too long though)
-    # * renamed hasChild to tip as an inverse boolean
+    # TODO: rename categoryId to node (or classificaiton, too long though)
+    # TODO: rename hasChild to tip as an inverse boolean
     #{ label: label, count: count, node: record.classification, tip: tip }
-    #bool = record.children.where(leaf: false).count > 0
     { label: label, count: count, categoryId: record.classification, hasChild: ! tip }
   end
 end
