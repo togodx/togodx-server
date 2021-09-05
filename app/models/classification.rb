@@ -1,2 +1,52 @@
 class Classification < ApplicationRecord
+  self.abstract_class = true
+
+  acts_as_nested_set counter_cache: :count
+
+  include Breakdown
+
+  class << self
+    # @return [Array<Hash>]
+    def breakdown(node = nil, mode = nil)
+      (node ? find_by(classification: node) : root)&.breakdown(mode) || []
+    end
+
+    # @return [Array<String>] list of classification (leaves' ID)
+    def entries(node = nil)
+      (node ? find_by(classification: node) : root)&.entries || []
+    end
+  end
+
+  # @return [Array<Hash>]
+  def breakdown(mode = nil)
+    list = children_without_leaf.map do |child|
+      child.count_breakdown
+    end
+
+    self.class.sort_breakdown(list, mode)
+  end
+
+  # @return [ActiveRecord::Relation<Classification>]
+  def children_without_leaf
+    self.class.where(parent_id: id).where(leaf: false)
+  end
+
+  # @return [Hash]
+  def count_breakdown
+    # * renamed categoryId to node (or classificaiton, too long though)
+    # * renamed hasChild to tip as an inverse boolean
+    {
+      label: classification_label,
+      count: descendants.where(leaf: true).count,
+      categoryId: classification,
+      hasChild: !children_without_leaf.count.zero?
+    }
+  end
+
+  # @return [Array<String>] list of classification (leaves' ID)
+  def entries
+    descendants
+      .where(leaf: true)
+      .map(&:classification)
+  end
 end
