@@ -44,8 +44,6 @@ class ApplicationController < ActionController::API
 
       if source != target
         entries = Relation.convert(source, target, entries).map(&:entry2)
-      else
-        entries = entries.map(&:classification)
       end
 
       entries.uniq
