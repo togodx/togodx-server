@@ -41,6 +41,7 @@ class Distribution < ApplicationRecord
     # self: instance (table#)
     # self.class: Distribution
     count = self.class.where(distribution_value: min...max).count
-    { label: label, count: count }
+    #{ label: label, count: count }
+    { label: label, count: count, categoryId: label.sub(/\s.*/, ''), hasChild: true }
   end
 end

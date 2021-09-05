@@ -16,6 +16,17 @@ class Classification < ApplicationRecord
     sort_breakdown(list, mode)
   end
 
+  def entries(node = nil)
+    $stderr.print ">> condition: "
+    $stderr.puts node.inspect
+    if node
+      record = self.class.find_by!(classification: node)
+    else
+      record = self.class.root
+    end
+    record.descendants.where(leaf: true).map{|x| x.classification}
+  end
+
   private
 
   # TODO: ad hoc fix to avoid node.children looks classification table
@@ -29,8 +40,8 @@ class Classification < ApplicationRecord
     tip = children_without_leaf(record).count == 0
     # * renamed categoryId to node (or classificaiton, too long though)
     # * renamed hasChild to tip as an inverse boolean
-    { label: label, count: count, node: record.classification, tip: tip }
+    #{ label: label, count: count, node: record.classification, tip: tip }
     #bool = record.children.where(leaf: false).count > 0
-    #{ label: label, count: count, classification: record.classification, has_child: bool }
+    { label: label, count: count, categoryId: record.classification, hasChild: ! tip }
   end
 end
