@@ -47,6 +47,8 @@ GEM
     activerecord (6.1.4.1)
       activemodel (= 6.1.4.1)
       activesupport (= 6.1.4.1)
+    activerecord-import (1.2.0)
+      activerecord (>= 3.2)
     activestorage (6.1.4.1)
       actionpack (= 6.1.4.1)
       activejob (= 6.1.4.1)
@@ -168,6 +170,7 @@ PLATFORMS
   x86_64-darwin-19
 
 DEPENDENCIES
+  activerecord-import (~> 1.2)
   awesome_nested_set (~> 3.4)
   better_errors (~> 2.9)
   binding_of_caller (~> 1.0)

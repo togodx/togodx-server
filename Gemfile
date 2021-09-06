@@ -18,6 +18,7 @@ gem 'rack-cors', '~> 1.1'
 
 # extension
 gem 'awesome_nested_set', '~> 3.4'
+gem 'activerecord-import', '~> 1.2', require: false
 gem 'rails_pretty_json_rednerer', '~> 0.1.0'
 
 # template engine
