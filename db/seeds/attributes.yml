@@ -1,0 +1,42 @@
+---
+- api: gene_chromosome_ensembl
+  label: Chromosome
+  dataset: ensembl_gene
+  datamodel: Classification
+  original_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_chromosome_ensembl
+  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_chromosome_ensembl_binary
+
+- api: gene_high_level_expression_refex
+  label: High-level expression
+  dataset: ncbigene
+  datamodel: Classification
+  original_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_high_level_expression_refex
+  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_high_level_expression_refex_binary
+
+- api: gene_transcription_factors_chip_atlas
+  label: Transcription factors
+  dataset: ensembl_gene
+  datamodel: Classification
+  original_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_transcription_factors_chip_atlas
+  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_transcription_factors_chip_atlas_binary
+
+- api: protein_cellular_component_uniprot
+  label: Cellular component
+  dataset: uniprot
+  datamodel: Classification
+  original_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_cellular_component_uniprot
+  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_cellular_component_uniprot_binary
+
+- api: protein_disease_related_proteins_uniprot
+  label: Disease-related proteins
+  dataset: uniprot
+  datamodel: Classification
+  original_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_disease_related_proteins_uniprot
+  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_disease_related_proteins_uniprot_binary
+
+- api: protein_molecular_mass_uniprot
+  label: Molecular mass
+  dataset: uniprot
+  datamodel: Distribution
+  original_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_molecular_mass_uniprot
+  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_molecular_mass_uniprot_binary
