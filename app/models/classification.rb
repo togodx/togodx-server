@@ -1,6 +1,4 @@
 class Classification < ApplicationRecord
-  self.abstract_class = true
-
   acts_as_nested_set counter_cache: :count
 
   include Breakdown

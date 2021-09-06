@@ -1,6 +1,4 @@
 class Distribution < ApplicationRecord
-  self.abstract_class = true
-
   include Breakdown
 
   class << self

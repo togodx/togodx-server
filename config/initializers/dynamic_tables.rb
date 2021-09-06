@@ -11,4 +11,6 @@ Rails.configuration.to_prepare do
 
     Object.const_set const_name, klass
   end
+rescue ActiveRecord::StatementInvalid
+  # attributes table not found
 end
