@@ -17,8 +17,6 @@ class Classification < ApplicationRecord
   end
 
   def entries(node = nil)
-    $stderr.print ">> condition: "
-    $stderr.puts node.inspect
     if node
       record = self.class.find_by!(classification: node)
     else

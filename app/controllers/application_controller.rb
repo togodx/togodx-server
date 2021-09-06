@@ -19,8 +19,11 @@ class ApplicationController < ActionController::API
     # TODO: rename to params[:filters]
     filters = JSON.parse(params[:properties])
 
-    # TODO: implement a logic to generate JSON of togokey_table_data
-    # Need to care filters without conditions for "Map attribute"
+    # TODO:
+    # * returns the number of aggregated ids first
+    # * then, implement a logic to generate JSON of togokey_table_data
+    # * need to care filters without conditions for "Map attribute"
+    # * need to return 100 rows per time?
     render json: aggregate_identifiers(target, filters)
   end
 
@@ -53,7 +56,7 @@ class ApplicationController < ActionController::API
     idset
   end
 
-  # TODO: this fails to swith table between Classification instances
+  # TODO: this fails to switch table between Classification instances
   # in aggregate_identifiers (works in dispatch_breakdown)...
   # Even though the table_name is set to 4, SQL queries table1, strange.
   #
