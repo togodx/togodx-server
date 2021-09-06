@@ -6,9 +6,9 @@ module Breakdown
       case mode
       when 'numerical_asc'
         list.sort { |a, b| a[:count] <=> b[:count] }
-      when 'numerical_desc', nil  # defalut
+      when 'numerical_desc'
         list.sort { |a, b| a[:count] <=> b[:count] }.reverse
-      when 'alphabetical_asc'
+      when 'alphabetical_asc', nil  # defalut
         list.sort { |a, b| a[:label] <=> b[:label] }
       when 'alphabetical_desc'
         list.sort { |a, b| a[:label] <=> b[:label] }.reverse
