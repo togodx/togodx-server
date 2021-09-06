@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_25_070453) do
+ActiveRecord::Schema.define(version: 2021_09_06_085048) do
 
   create_table "attributes", force: :cascade do |t|
     t.string "api", null: false
@@ -27,8 +27,8 @@ ActiveRecord::Schema.define(version: 2021_08_25_070453) do
     t.string "classification_parent"
     t.boolean "leaf"
     t.integer "parent_id"
-    t.integer "lft", null: false
-    t.integer "rgt", null: false
+    t.integer "lft", default: 0, null: false
+    t.integer "rgt", default: 0, null: false
     t.integer "count", default: 0, null: false
     t.index ["classification"], name: "index_classifications_on_classification"
     t.index ["leaf"], name: "index_classifications_on_leaf"
@@ -41,6 +41,8 @@ ActiveRecord::Schema.define(version: 2021_08_25_070453) do
     t.string "distribution", null: false
     t.string "distribution_label"
     t.float "distribution_value", null: false
+    t.string "bin_id"
+    t.string "bin_label"
     t.index ["distribution"], name: "index_distributions_on_distribution"
     t.index ["distribution_value"], name: "index_distributions_on_distribution_value"
   end
