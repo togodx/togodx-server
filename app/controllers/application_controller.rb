@@ -17,16 +17,6 @@ class ApplicationController < ActionController::API
 
   # togokey_filter
   def aggregate_identifiers
-    # test data
-    params[:togoKey] = 'ncbigene'
-    params[:properties] = [
-      { propertyId: 'gene_chromosome_ensembl', categoryIds: ['2'] },
-      # { propertyId: 'protein_cellular_component_uniprot', categoryIds: ['GO_1990351'] }, # `classification = GO_1990351` is not found
-      { propertyId: 'protein_cellular_component_uniprot', categoryIds: ['GO_0032991'] },
-      { propertyId: 'protein_molecular_mass_uniprot', categoryIds: ['10-20'] },
-      { propertyId: 'gene_high_level_expression_refex' }
-    ].to_json
-
     target = params[:togoKey] # params[:dataset] primarykey? subject? target?
     filters = JSON.parse(params[:properties]).map(&:deep_symbolize_keys) # params[:filters]
 
