@@ -16,6 +16,9 @@ gem 'sqlite3', '~> 1.4'
 gem 'puma', '~> 5.0'
 gem 'rack-cors', '~> 1.1'
 
+# http client
+gem 'faraday', '~> 1.7'
+
 # extension
 gem 'awesome_nested_set', '~> 3.4'
 gem 'activerecord-import', '~> 1.2', require: false
