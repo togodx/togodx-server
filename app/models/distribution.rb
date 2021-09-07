@@ -25,7 +25,7 @@ class Distribution < ApplicationRecord
       # @param [NilClass,String] node A string representing a range. (e.g. "10-20")
       # @return [Array<String>] list of distribution
       def entries(node = nil)
-        (node ? where(bin_label: node) : all).map(&:distribution)
+        (node ? where(bin_id: node) : all).map(&:distribution)
       end
     end
   end
