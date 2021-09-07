@@ -11,15 +11,35 @@ class ApplicationController < ActionController::API
 
   # GET /dataframe
   # POST /dataframe
-  def generate_dataframe
-    render (params.key?(:pretty) ? :pretty_json : :json) => aggregate_identifiers
+  def dataframe
+    # TODO: rename to target? subject? map_to? togokey?
+    target = params[:togoKey]
+    # TODO: rename to params[:filters]
+    filters = JSON.parse(params[:properties]).map(&:deep_symbolize_keys)
+
+    render (params.key?(:pretty) ? :pretty_json : :json) => generate_dataframe(target, filters)
+  end
+
+  # GET /aggregate
+  # POST /aggregate
+  def aggregate
+    # TODO: rename to target? subject? map_to? togokey?
+    target = params[:togoKey]
+    # TODO: rename to params[:filters]
+    filters = JSON.parse(params[:properties]).map(&:deep_symbolize_keys)
+
+    render (params.key?(:pretty) ? :pretty_json : :json) => aggregate_identifiers(target, filters)
+  end
+
+  private
+
+  # togokey_table_data
+  def generate_dataframe(target, filters)
+    aggregate_identifiers(target, filters)
   end
 
   # togokey_filter
-  def aggregate_identifiers
-    target = params[:togoKey] # params[:dataset] primarykey? subject? target?
-    filters = JSON.parse(params[:properties]).map(&:deep_symbolize_keys) # params[:filters]
-
+  def aggregate_identifiers(target, filters)
     idsets = filters.select { |x| x.has_key?(:categoryIds) }.map do |hash|
       entries = []
 
