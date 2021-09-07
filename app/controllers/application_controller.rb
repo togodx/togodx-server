@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::API
   # GET /breakdown/:api
   # POST /breakdown/:api
-  def dispatch_breakdown
+  def breakdown
     attribute = params[:api] # rename to attribute? api_id => attribute_id
     node = params[:categoryIds] # params[:node]
     mode = params[:mode]
@@ -53,7 +53,7 @@ class ApplicationController < ActionController::API
       end
 
       if source != target
-        entries = Relation.convert(source, target, entries).map(&:entry2)
+        entries = Relation.convert(source, target, entries)
       end
 
       entries.uniq
