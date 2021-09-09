@@ -32,6 +32,7 @@ gem 'pry-rails', '~> 0.3.9'
 
 group :development, :test do
   gem 'pry-byebug', '~> 3.9'
+  gem 'rspec-rails', '~> 5.0'
 end
 
 group :development do
