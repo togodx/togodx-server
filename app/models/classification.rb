@@ -16,6 +16,16 @@ class Classification < ApplicationRecord
       def entries(node = nil)
         (node ? find_by(classification: node) : root)&.entries || []
       end
+
+      def labels(node, conditions)
+        (find_by(classification: node)&.ancestors&.where(classification: conditions) || []).map do |x|
+          {
+            categoryId: x.classification,
+            uri: "TODO: FIXME",
+            label: x.classification_label
+          }
+        end
+      end
     end
 
     # @return [Array<Hash>]
