@@ -18,7 +18,7 @@ class Classification < ApplicationRecord
       end
 
       def labels(node, conditions)
-        (find_by(classification: node)&.ancestors&.where(classification: conditions) || []).map do |x|
+        where(classification: node).map { |x| x.ancestors.find_by(classification: conditions) }.compact.map do |x|
           {
             categoryId: x.classification,
             uri: "TODO: FIXME",

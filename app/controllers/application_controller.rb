@@ -74,7 +74,7 @@ class ApplicationController < ActionController::API
           end
         end
         # json.properties (cell of a column)
-        col = {
+        {
           propertyId: api, # TODO: rename
           propertyLabel: attribute.label, # TODO: rename
           propertyKey: source, # TODO: rename
@@ -82,7 +82,7 @@ class ApplicationController < ActionController::API
         }
       end
       # json (primary ID and corresponding columns)
-      row = {
+      {
         id: query, # TODO: rename
         label: "TODO: FIXME", # TODO: rename
         properties: cols # TODO: rename (attributes?)
