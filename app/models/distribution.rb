@@ -27,6 +27,16 @@ class Distribution < ApplicationRecord
       def entries(node = nil)
         (node ? where(bin_id: node) : all).map(&:distribution)
       end
+
+      def labels(node, _conditions)
+        where(distribution: node).map do |leaf|
+          {
+            categoryId: node,
+            uri: 'TODO: FIXME',
+            label: leaf.bin_label
+          }
+        end
+      end
     end
   end
 end
