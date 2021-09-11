@@ -60,7 +60,7 @@ class ApplicationController < ActionController::API
         attribute, table, source = *table_cache[api].restore
         # primary (target) ID may corresponds to multiple (source) IDs
         if source != target
-          entries = Relation.reverse(source, target, query)
+          entries = Relation.convert(source, target, query, reverse: true)
         else
           entries = [query]
         end
