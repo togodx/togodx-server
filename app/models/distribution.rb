@@ -59,6 +59,10 @@ class Distribution < ApplicationRecord
             }
           end
       end
+
+      def default_categories
+        all.map(&:distribution)
+      end
     end
   end
 end

@@ -31,6 +31,11 @@ class Classification < ApplicationRecord
       def locate(queries, node = nil)
         (node ? find_by(classification: node) : root)&.locate(queries) || []
       end
+
+      # TODO: frontend should pass default categories
+      def default_categories
+        root.children.map(&:classification)
+      end
     end
 
     # @return [Array<Hash>]
