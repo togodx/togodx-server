@@ -45,6 +45,21 @@ class ApplicationController < ActionController::API
     render (params.key?(:pretty) ? :pretty_json : :json) => aggregate_identifiers(target, filters)
   end
 
+  # GET /locate
+  # POST /locate
+  def locate
+    api = params[:sparqlet].sub(/.*\//, '')
+    target = params[:primaryKey]
+    source = params[:userKey]
+    queries = params[:userIds].split(/,\s*/)
+    node = params[:categoryIds] # nil or one
+    if source != target
+      queries = Relation.convert(source, target, queries)
+    end
+    attribute = Attribute.from_api(api)
+    render (params.key?(:pretty) ? :pretty_json : :json) => attribute.table.locate(queries, node)
+  end
+
   private
 
   # togokey_table_data

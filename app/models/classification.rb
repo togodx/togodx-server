@@ -5,6 +5,7 @@ class Classification < ApplicationRecord
     extend ActiveSupport::Concern
 
     include Breakdown
+    include Pvalue
 
     module ClassMethods
       # @return [Array<Hash>]
@@ -25,6 +26,10 @@ class Classification < ApplicationRecord
             label: x.classification_label
           }
         end
+      end
+
+      def locate(queries, node = nil)
+        (node ? find_by(classification: node) : root)&.locate(queries) || []
       end
     end
 
@@ -59,6 +64,23 @@ class Classification < ApplicationRecord
       descendants
         .where(leaf: true)
         .map(&:classification)
+    end
+  end
+
+  def locate(queries)
+    count_total = self.class.where(leaf: true).count
+    count_queries = queries.count
+    children_without_leaf.map do |child|
+      leaves = child.descendants.where(leaf: true).map(&:classification)
+      count_subtotal = leaves.count
+      count_hits = (queries & leaves).count
+      {
+        categoryId: child.classification,
+        label: child.classification_label,
+        count: count_subtotal,
+        hit_count: count_hits,
+        pValue: pvalue(count_total, count_subtotal, count_queries, count_hits)
+      }
     end
   end
 end
