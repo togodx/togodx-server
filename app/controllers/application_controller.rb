@@ -52,7 +52,7 @@ class ApplicationController < ActionController::API
     target = params[:primaryKey]
     source = params[:userKey]
     queries = params[:userIds].split(/,\s*/)
-    node = params[:categoryIds] # nil or one
+    node = params[:categoryIds].presence # nil or one
     if source != target
       queries = Relation.convert(source, target, queries)
     end
