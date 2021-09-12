@@ -65,17 +65,24 @@ class ApplicationController < ActionController::API
   # togokey_table_data
   def generate_dataframe(target, queries, filters)
     table_cache = {}
+    default_categories = {}
+    entry_cache = filters.map { |x| Attribute.from_api(x[:propertyId]).dataset }.uniq.grep_v(target).map do |key|
+      [key, Relation.where(db1: key, db2: target, entry2: queries).map { |x| [x[:entry2], x[:entry1]] }.to_h]
+    end.to_h
 
-    rows = queries.map do |query|
+    queries.map do |query|
       cols = filters.map do |hash|
         api = hash[:propertyId]
-        conditions = hash[:categoryIds]
         # cache/restore an Attribute table
         table_cache[api] ||= TableCache.new(api)
         attribute, table, source = *table_cache[api].restore
+
+        conditions = hash[:categoryIds] || (default_categories[api] ||= table.default_categories)
+
         # primary (target) ID may corresponds to multiple (source) IDs
         if source != target
-          entries = Relation.convert(source, target, query, reverse: true)
+          # entries = Relation.convert(source, target, query, reverse: true)
+          entries = [entry_cache[source][query]]
         else
           entries = [query]
         end
