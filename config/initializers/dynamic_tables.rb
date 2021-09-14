@@ -9,7 +9,7 @@ Rails.configuration.to_prepare do
       class #{const_name} < ApplicationRecord
         acts_as_nested_set counter_cache: :count
         self.table_name = "#{const_name.underscore}"
-        include #{attribute.datamodel}::Base
+        include #{attribute.to_model_class.name}::Base
       end
     RUBY
   end

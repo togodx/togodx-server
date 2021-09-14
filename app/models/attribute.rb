@@ -1,7 +1,7 @@
 class Attribute < ApplicationRecord
   module DataModel
-    CLASSIFICATION = 'Classification'
-    DISTRIBUTION = 'Distribution'
+    CLASSIFICATION = 'classification'
+    DISTRIBUTION = 'distribution'
   end
 
   class << self
@@ -24,7 +24,20 @@ class Attribute < ApplicationRecord
     # @param [String] api
     # @return [Attribute]
     def from_api(api)
-      find_by!(api: api)
+      return @from_api[api] if (@from_api ||= {})[api].present?
+
+      @from_api[api] ||= find_by!(api: api)
+    end
+  end
+
+  def to_model_class
+    case self.datamodel.downcase
+    when DataModel::CLASSIFICATION
+      Classification
+    when DataModel::DISTRIBUTION
+      Distribution
+    else
+      raise NameError, "Invalid data model: #{attribute.datamodel}"
     end
   end
 
