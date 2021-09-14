@@ -72,8 +72,11 @@ class Classification < ApplicationRecord
     end
 
     def locate(queries)
-      count_total = self.class.where(leaf: true).count
-      count_queries = queries.count
+      leaves = self.class.where(leaf: true)
+
+      count_total = leaves.count
+      count_queries = leaves.where(classification: queries).count
+
       children_without_leaf.map do |child|
         leaves = child.descendants.where(leaf: true).map(&:classification)
         count_subtotal = leaves.count

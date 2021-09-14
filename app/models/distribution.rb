@@ -41,11 +41,13 @@ class Distribution < ApplicationRecord
 
       def locate(queries, node = nil)
         count_total = count
-        count_queries = queries.count
+        count_queries = where(distribution: queries).count
+
         hits = select('COUNT(*)')
                  .where(%Q["#{table_name}"."bin_id" = "t1"."bin_id"])
                  .where(distribution: queries)
                  .to_sql
+
         select('"t1"."bin_id"', '"t1"."bin_label"', 'COUNT(*) AS count_subtotal', "(#{hits}) AS count_hits")
           .from(%Q["#{table_name}" AS "t1"])
           .group('"t1"."bin_id"', '"t1"."bin_label"')
