@@ -2,146 +2,63 @@ class ApplicationController < ActionController::API
   # GET /breakdown/:api
   # POST /breakdown/:api
   def breakdown
-    attribute = params[:api] # rename to attribute? api_id => attribute_id
-    node = params[:categoryIds] # params[:node]
-    mode = params[:mode]
+    parameters = {
+      attribute: params[:api], # rename to attribute? api_id => attribute_id
+      node: params[:categoryIds], # params[:node]
+      mode: params[:mode]
+    }
 
-    render (params.key?(:pretty) ? :pretty_json : :json) => Attribute.from_api(attribute).table.breakdown(node, mode)
-  end
+    breakdown = CountBreakdown.run(parameters)
 
-  # GET /dataframe
-  # POST /dataframe
-  def dataframe
-    # TODO: rename to target? subject? map_to? togokey?
-    target = params[:togoKey]
-    # TODO: rename to params[:queries]
-    queries = JSON.parse(params[:queryIds])
-    # TODO: rename to params[:filters]
-    filters = JSON.parse(params[:properties]).map(&:deep_symbolize_keys)
-
-    render (params.key?(:pretty) ? :pretty_json : :json) => generate_dataframe(target, queries, filters)
-  end
-
-  class TableCache
-    def initialize(api)
-      @attribute = Attribute.from_api(api)
-      @table = @attribute.table
-      @source = @attribute.dataset
-    end
-
-    def restore
-      return [@attribute, @table, @source]
-    end
+    render_json breakdown.result, status: breakdown.valid? ? :ok : :bad_request
   end
 
   # GET /aggregate
   # POST /aggregate
   def aggregate
-    # TODO: rename to target? subject? map_to? togokey?
-    target = params[:togoKey]
-    # TODO: rename to params[:filters]
-    filters = JSON.parse(params[:properties]).map(&:deep_symbolize_keys)
+    parameters = {
+      target: params[:togoKey], # TODO: rename to target? subject? map_to? togokey?
+      filters: JSON.parse(params[:properties] || '[]').map(&:symbolize_keys) # TODO: rename to params[:filters]
+    }
 
-    render (params.key?(:pretty) ? :pretty_json : :json) => aggregate_identifiers(target, filters)
+    aggregate = FilterIdentifiers.run(parameters)
+
+    render_json aggregate.result, status: aggregate.valid? ? :ok : :bad_request
+  end
+
+  # GET /dataframe
+  # POST /dataframe
+  def dataframe
+    parameters = {
+      target: params[:togoKey], # TODO: rename to target? subject? map_to? togokey?
+      queries: JSON.parse(params[:queryIds] || '[]'), # TODO: rename to params[:queries]
+      filters: JSON.parse(params[:properties] || '[]').map(&:symbolize_keys) # TODO: rename to params[:filters]
+    }
+
+    dataframe = GenerateTable.run(parameters)
+
+    render_json dataframe.result, status: dataframe.valid? ? :ok : :bad_request
   end
 
   # GET /locate
   # POST /locate
   def locate
-    api = params[:sparqlet].sub(/.*\//, '')
-    target = params[:primaryKey]
-    source = params[:userKey]
-    queries = params[:userIds].split(/,\s*/)
-    node = params[:categoryIds].presence # nil or one
-    if source != target
-      queries = Relation.convert(source, target, queries)
-    end
-    attribute = Attribute.from_api(api)
-    render (params.key?(:pretty) ? :pretty_json : :json) => attribute.table.locate(queries, node)
+    parameters = {
+      api: params[:sparqlet].sub(/.*\//, ''),
+      target: params[:primaryKey],
+      source: params[:userKey],
+      queries: params[:userIds].split(/,\s*/),
+      node: params[:categoryIds].presence # nil or one
+    }
+
+    location = LocateIdentifiers.run(parameters)
+
+    render_json location.result, status: location.valid? ? :ok : :bad_request
   end
 
   private
 
-  # togokey_table_data
-  def generate_dataframe(target, queries, filters)
-    table_cache = {}
-    default_categories = {}
-    entry_cache = filters.map { |x| Attribute.from_api(x[:propertyId]).dataset }.uniq.grep_v(target).map do |key|
-      [key, Relation.where(db1: key, db2: target, entry2: queries).map { |x| [x[:entry2], x[:entry1]] }.to_h]
-    end.to_h
-
-    queries.map do |query|
-      cols = filters.map do |hash|
-        api = hash[:propertyId]
-        # cache/restore an Attribute table
-        table_cache[api] ||= TableCache.new(api)
-        attribute, table, source = *table_cache[api].restore
-
-        conditions = hash[:categoryIds] || (default_categories[api] ||= table.default_categories)
-
-        # primary (target) ID may corresponds to multiple (source) IDs
-        if source != target
-          # entries = Relation.convert(source, target, query, reverse: true)
-          entries = [entry_cache[source][query]]
-        else
-          entries = [query]
-        end
-        cells = entries.flat_map do |entry|
-          # json.properties.attributes (usually one but map for safe)
-          table.labels(entry, conditions).map do |label|
-            {
-              id: entry, # TODO: rename
-              attribute: label
-            }
-          end
-        end
-        # json.properties (cell of a column)
-        {
-          propertyId: api, # TODO: rename
-          propertyLabel: attribute.label, # TODO: rename
-          propertyKey: source, # TODO: rename
-          attributes: cells # TODO: rename
-        }
-      end
-      # json (primary ID and corresponding columns)
-      {
-        id: query, # TODO: rename
-        label: "TODO: FIXME", # TODO: rename
-        properties: cols # TODO: rename (attributes?)
-      }
-    end
-  end
-
-  # togokey_filter
-  def aggregate_identifiers(target, filters)
-    idsets = filters.select { |x| x.has_key?(:categoryIds) }.map do |hash|
-      entries = []
-
-      attribute = Attribute.from_api(hash[:propertyId])
-      table = attribute.table
-      source = attribute.dataset
-
-      hash[:categoryIds].each do |condition|
-        # OR (within a same attribute)
-        entries += table.entries(condition)
-      end
-
-      if source != target
-        entries = Relation.convert(source, target, entries)
-      end
-
-      entries.uniq
-    end
-
-    # AND (among different attributes)
-    idsets.sort! { |a, b| a.size <=> b.size }
-
-    # idset = idsets.shift
-    # while idsets.size > 0
-    #   other = idsets.shift
-    #   idset = idset.intersection(other)
-    # end
-
-    idsets.inject { |set, array| set.intersection(array) }
+  def render_json(body, status: :ok)
+    render (params.key?(:pretty) ? :pretty_json : :json) => body, status: status
   end
 end
