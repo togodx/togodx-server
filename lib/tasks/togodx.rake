@@ -163,7 +163,8 @@ namespace :togodx do
     attributes.each do |attribute|
       schema = File.read(File.expand_path(File.join('db', 'schema.rb'), Rails.root))
 
-      template_table = attribute.datamodel.pluralize
+      model = attribute.to_model_class
+      template_table = model.table_name
       m = schema.match(/^\s*create_table "#{template_table}".*?end$/m)
       raise RuntimeError, 'Failed to obtain migration definition' unless m
 
@@ -178,7 +179,7 @@ namespace :togodx do
         next
       end
 
-      klass = Class.new(attribute.to_model_class) do |klass|
+      klass = Class.new(model) do |klass|
         klass.table_name = table
 
         def klass.model_name
@@ -186,8 +187,8 @@ namespace :togodx do
         end
       end
 
-      converter = case attribute.to_model_class
-                  when Classification
+      converter = case attribute.datamodel
+                  when Attribute::DataModel::CLASSIFICATION
                     lambda do |hash|
                       {
                         classification: hash['id'].to_s,
@@ -196,7 +197,7 @@ namespace :togodx do
                         leaf: hash['leaf'] == true
                       }
                     end
-                  when Distribution
+                  when Attribute::DataModel::DISTRIBUTION
                     lambda do |hash|
                       {
                         distribution: hash['id'].to_s,
