@@ -14,11 +14,8 @@ ActiveRecord::Schema.define(version: 2021_09_06_085048) do
 
   create_table "attributes", force: :cascade do |t|
     t.string "api", null: false
-    t.string "label"
     t.string "dataset", null: false
     t.string "datamodel", null: false
-    t.string "original_api"
-    t.string "cache_api"
   end
 
   create_table "classifications", force: :cascade do |t|
