@@ -47,7 +47,7 @@ class GenerateTable < ApplicationInteraction
         # json.properties (cell of a column)
         {
           propertyId: api, # TODO: rename
-          propertyLabel: attribute.label, # TODO: rename
+          propertyLabel: 'TODO: probably notused', # TODO: rename
           propertyKey: source, # TODO: rename
           attributes: cells # TODO: rename
         }
@@ -55,7 +55,7 @@ class GenerateTable < ApplicationInteraction
       # json (primary ID and corresponding columns)
       {
         id: query, # TODO: rename
-        label: "TODO: FIXME", # TODO: rename
+        label: 'TODO: FIXME', # TODO: rename
         properties: cols # TODO: rename (attributes?)
       }
     end
