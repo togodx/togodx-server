@@ -9,6 +9,7 @@ gem 'rails', '~> 6.1.3', '>= 6.1.3.2'
 gem 'bootsnap', '>= 1.4.4', require: false
 
 # database
+gem 'pg', '~> 1.2'
 gem 'sqlite3', '~> 1.4'
 # gem 'redis', '~> 4.0'
 
@@ -23,6 +24,7 @@ gem 'faraday', '~> 1.7'
 gem 'active_interaction', '~> 4.0'
 gem 'awesome_nested_set', '~> 3.4'
 gem 'activerecord-import', '~> 1.2', require: false
+gem 'dotenv-rails', '~> 2.7'
 gem 'rails_pretty_json_rednerer', '~> 0.1.0'
 gem 'rubystats', '~> 0.3.0'
 
