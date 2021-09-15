@@ -66,6 +66,8 @@ namespace :togodx do
             SELECT parent.id
             FROM #{table_name} parent
             WHERE #{table_name}.classification_parent = parent.classification
+            ORDER BY parent.id
+            LIMIT 1
           )
           WHERE EXISTS(
             SELECT 1
