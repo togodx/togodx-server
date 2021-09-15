@@ -20,6 +20,7 @@ gem 'rack-cors', '~> 1.1'
 gem 'faraday', '~> 1.7'
 
 # extension
+gem 'active_interaction', '~> 4.0'
 gem 'awesome_nested_set', '~> 3.4'
 gem 'activerecord-import', '~> 1.2', require: false
 gem 'rails_pretty_json_rednerer', '~> 0.1.0'
