@@ -40,7 +40,7 @@
 
 - api: protein_molecular_mass_uniprot
   dataset: uniprot
-  datamodel: classification
+  datamodel: distribution
 
 - api: protein_ptms_uniprot
   dataset: uniprot
