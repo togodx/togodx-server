@@ -86,4 +86,137 @@ namespace :togodx do
       Rails.logger.info('Rake') { "  rebuild index: #{'%.3f' % time} sec" }
     end
   end
+
+  require 'faraday'
+
+  desc 'Retrieve API cache.'
+  task :retrieve_cache, ['api'] => :environment do |_task, args|
+    Rails.logger = Logger.new(STDERR)
+    ActiveRecord::Base.logger = Rails.logger
+
+    cache_path = Rails.root.join('tmp', 'cache', 'api')
+    FileUtils.mkdir_p cache_path unless cache_path.exist?
+
+    prefix = URI.parse(Rails.configuration.togodx.dig(:api, :prefix))
+
+    attributes = if args['api'].nil?
+                   Attribute.all
+                 else
+                   Attribute.where(api: [args['api']] + args.extras)
+                 end
+
+    attributes.each do |attribute|
+      file = cache_path.join("#{attribute.api}.json")
+      if file.exist?
+        Rails.logger.info('Rake') { "#{file.relative_path_from(Rails.root)} already exists, skipped" }
+        next
+      end
+
+      url = prefix.merge(attribute.api)
+
+      Rails.logger.info('Rake') { "retrieving from #{url}" }
+
+      response = nil
+      time = Benchmark.realtime do
+        response = Faraday.new(url: url.merge('/')).get(url.request_uri) do |req|
+          req.options.timeout = 1.hour
+          req.headers['Accept'] = 'application/json'
+        end
+      end
+
+      unless response&.status == 200
+        Rails.logger.error('Rake') { "  failed with status #{response&.status}: #{'%.3f' % time} sec\n#{response&.body}" }
+        next
+      end
+
+      File.open(file, 'w') do |f|
+        response&.body&.split("\n")&.each do |x|
+          begin
+            f.puts x
+          rescue Encoding::UndefinedConversionError => e
+            f.puts((safe = x.force_encoding('UTF-8')))
+            Rails.logger.warn('Rake') { "  #{e.message}" }
+            Rails.logger.warn('Rake') { "    error_char: #{e.error_char}" }
+            Rails.logger.warn('Rake') { "        source: #{x}" }
+            Rails.logger.warn('Rake') { "     converted: #{safe}" }
+          end
+        end
+      end
+
+      Rails.logger.info('Rake') { "  succeeded: #{'%.3f' % time} sec" }
+    end
+  end
+
+  desc 'Load classification or distribution from cached api json'
+  task :import_cache, %i[api] => :environment do |_task, args|
+    Rails.logger = Logger.new(STDERR)
+    ActiveRecord::Base.logger = nil
+
+    cache_path = Rails.root.join('tmp', 'cache', 'api')
+
+    attributes = if args['api'].nil?
+                   Attribute.all
+                 else
+                   Attribute.where(api: [args['api']] + args.extras)
+                 end
+
+    attributes.each do |attribute|
+      schema = File.read(File.expand_path(File.join('db', 'schema.rb'), Rails.root))
+
+      template_table = attribute.datamodel.pluralize
+      m = schema.match(/^\s*create_table "#{template_table}".*?end$/m)
+      raise RuntimeError, 'Failed to obtain migration definition' unless m
+
+      table = "table#{attribute.id}"
+      ActiveRecord::Migration.class_eval do
+        eval m[0].gsub(template_table, table)
+      end
+
+      file = cache_path.join("#{attribute.api}.json")
+      unless file.exist?
+        Rails.logger.info('Rake') { "#{file.relative_path_from(Rails.root)} not found, skipped" }
+        next
+      end
+
+      klass = Class.new(attribute.to_model_class) do |klass|
+        klass.table_name = table
+
+        def klass.model_name
+          ActiveModel::Name.new(self, nil, "temp")
+        end
+      end
+
+      converter = case attribute.to_model_class
+                  when Classification
+                    lambda do |hash|
+                      {
+                        classification: hash['id'].to_s,
+                        classification_label: hash['label'].to_s,
+                        classification_parent: hash['parent'].to_s,
+                        leaf: hash['leaf'] == true
+                      }
+                    end
+                  when Distribution
+                    lambda do |hash|
+                      {
+                        distribution: hash['id'].to_s,
+                        distribution_label: hash['label'].to_s,
+                        distribution_value: hash['value'].to_s,
+                        bin_id: hash['binId'].to_s,
+                        bin_label: hash['binLabel'].to_s
+                      }
+                    end
+                  else
+                    raise NameError, "Invalid data model: #{attribute.datamodel}"
+                  end
+
+      time = Benchmark.realtime do
+        JSON.load_file(file).map { |x| converter.call(x) }.each_slice(1000) do |values|
+          klass.import values
+        end
+      end
+
+      Rails.logger.info('Rake') { "import #{(n = klass.count)} #{'record'.pluralize(n)} to #{table}: #{'%.3f' % time} sec" }
+    end
+  end
 end
