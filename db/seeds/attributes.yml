@@ -1,42 +1,91 @@
----
 - api: gene_chromosome_ensembl
-  label: Chromosome
   dataset: ensembl_gene
-  datamodel: Classification
-  original_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_chromosome_ensembl
-  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_chromosome_ensembl_binary
+  datamodel: classification
+
+- api: gene_number_of_paralogs_homologene
+  dataset: ncbigene
+  datamodel: classification
+
+- api: gene_evolutionary_conservation_homologene
+  dataset: ncbigene
+  datamodel: classification
 
 - api: gene_high_level_expression_refex
-  label: High-level expression
   dataset: ncbigene
-  datamodel: Classification
-  original_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_high_level_expression_refex
-  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_high_level_expression_refex_binary
+  datamodel: classification
 
-- api: gene_transcription_factors_chip_atlas
-  label: Transcription factors
-  dataset: ensembl_gene
-  datamodel: Classification
-  original_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_transcription_factors_chip_atlas
-  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/gene_transcription_factors_chip_atlas_binary
+- api: gene_low_level_expression_refex
+  dataset: ncbigene
+  datamodel: classification
+
+- api: protein_domains_uniprot
+  dataset: uniprot
+  datamodel: classification
 
 - api: protein_cellular_component_uniprot
-  label: Cellular component
   dataset: uniprot
-  datamodel: Classification
-  original_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_cellular_component_uniprot
-  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_cellular_component_uniprot_binary
+  datamodel: classification
 
-- api: protein_disease_related_proteins_uniprot
-  label: Disease-related proteins
+- api: protein_biological_process_uniprot
   dataset: uniprot
-  datamodel: Classification
-  original_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_disease_related_proteins_uniprot
-  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_disease_related_proteins_uniprot_binary
+  datamodel: classification
+
+- api: protein_molecular_function_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_ligands_uniprot
+  dataset: uniprot
+  datamodel: classification
 
 - api: protein_molecular_mass_uniprot
-  label: Molecular mass
   dataset: uniprot
-  datamodel: Distribution
-  original_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_molecular_mass_uniprot
-  cache_api: https://sparql-support.dbcls.jp/sparqlist/api/protein_molecular_mass_uniprot_binary
+  datamodel: classification
+
+- api: protein_ptms_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_number_of_transmembrane_domains_uniprot
+  dataset: uniprot
+  datamodel: distribution
+
+- api: protein_number_of_phosphorylation_sites_uniprot
+  dataset: uniprot
+  datamodel: distribution
+
+- api: protein_number_of_glycosylation_sites_uniprot
+  dataset: uniprot
+  datamodel: distribution
+
+- api: protein_disease_related_proteins_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_isolation_source_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_evidence_of_existence_nextprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: structure_data_existence_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: interaction_chembl_assay_existence_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: interaction_compounds_in_pathway_reactome
+  dataset: chebi
+  datamodel: classification
+
+- api: interaction_number_of_interacting_proteins_uniprot
+  dataset: uniprot
+  datamodel: distribution
+
+- api: interaction_proteins_in_pathway_reactome
+  dataset: uniprot
+  datamodel: classification
