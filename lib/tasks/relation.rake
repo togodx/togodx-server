@@ -6,6 +6,8 @@ namespace :relation do
     Rails.logger = Logger.new(STDERR)
     ActiveRecord::Base.logger = nil
 
+    Relation.truncate_table
+
     %w[ensembl_gene ncbigene uniprot chebi].permutation(2).each do |src, dst|
       Rails.logger.info('Rake') { "Retrieving ID mapping for `#{src}` to `#{dst}`" }
 
