@@ -6,7 +6,7 @@ class GenerateTable < ApplicationInteraction
   array :filters do
     hash do
       string :propertyId
-      array :categoryIds, default: [] do
+      array :categoryIds, default: nil do
         string
       end
     end
@@ -15,7 +15,7 @@ class GenerateTable < ApplicationInteraction
   def execute
     default_categories = {}
     entry_cache = filters.map { |x| Attribute.from_api(x[:propertyId]).dataset }.uniq.grep_v(target).map do |key|
-      [key, Relation.where(db1: key, db2: target, entry2: queries).map { |x| [x[:entry2], x[:entry1]] }.to_h]
+      [key, Relation.where(db1: key, db2: target, entry2: queries).pluck(:entry2, :entry1).group_by { |x| x[0] }.map { |k, v| [k, v.map { |x| x[1] }] }.to_h]
     end.to_h
 
     queries.map do |query|
@@ -31,7 +31,7 @@ class GenerateTable < ApplicationInteraction
         # primary (target) ID may corresponds to multiple (source) IDs
         if source != target
           # entries = Relation.convert(source, target, query, reverse: true)
-          entries = [entry_cache[source][query]]
+          entries = entry_cache[source][query]
         else
           entries = [query]
         end
