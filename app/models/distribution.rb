@@ -17,7 +17,7 @@ class Distribution < ApplicationRecord
           {
             label: k[1],
             count: v,
-            categoryId: k[0],
+            categoryId: k[0].to_i,
             hasChild: false     # not used
           }
         end
