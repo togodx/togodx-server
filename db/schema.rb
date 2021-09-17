@@ -16,6 +16,7 @@ ActiveRecord::Schema.define(version: 2021_09_06_085048) do
     t.string "api", null: false
     t.string "dataset", null: false
     t.string "datamodel", null: false
+    t.index ["api"], name: "index_attributes_on_api", unique: true
   end
 
   create_table "classifications", force: :cascade do |t|
