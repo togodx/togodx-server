@@ -56,7 +56,9 @@ namespace :togodx do
     ActiveRecord::Base.logger = nil
 
     Attribute.classifications.each do |attribute|
-      table_name = attribute.table.table_name
+      next if (table = attribute.table).rebuilt?
+
+      table_name = table.table_name
       Rails.logger.info('Rake') { "rebuilding #{table_name} (#{attribute.api})" }
 
       time = Benchmark.realtime do
@@ -80,7 +82,7 @@ namespace :togodx do
       Rails.logger.info('Rake') { "  update parent id: #{'%.3f' % time} sec" }
 
       time = Benchmark.realtime do
-        attribute.table.rebuild!
+        table.rebuild!
       end
 
       Rails.logger.info('Rake') { "  rebuild index: #{'%.3f' % time} sec" }

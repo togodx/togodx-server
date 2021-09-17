@@ -6,9 +6,12 @@ namespace :relation do
     Rails.logger = Logger.new(STDERR)
     ActiveRecord::Base.logger = nil
 
-    Relation.truncate_table
+    #Relation.truncate_table
 
-    %w[ensembl_gene ncbigene uniprot chebi].permutation(2).each do |src, dst|
+    pair = Attribute.select(:dataset).distinct.pluck(:dataset).permutation(2).to_a -
+      Relation.select(:db1, :db2).distinct.pluck(:db1, :db2)
+
+    pair.each do |src, dst|
       Rails.logger.info('Rake') { "Retrieving ID mapping for `#{src}` to `#{dst}`" }
 
       time = Benchmark.realtime do
@@ -18,6 +21,7 @@ namespace :relation do
 
         ids.each_slice(1000) do |g|
           response = Faraday.new(url: 'https://integbio.jp').post('/togosite/sparqlist/api/togoid_route_sparql') do |req|
+            req.options.timeout = 1.hour
             req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
             req.body = URI.encode_www_form({ source: src, target: dst, ids: g.join(',') })
           end

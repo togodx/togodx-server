@@ -36,6 +36,10 @@ class Classification < ApplicationRecord
       def default_categories
         root.children.map(&:classification)
       end
+
+      def rebuilt?
+        where(parent_id: nil).count == 1
+      end
     end
 
     # @return [Array<Hash>]
