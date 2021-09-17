@@ -31,12 +31,12 @@ class GenerateTable < ApplicationInteraction
         conditions = hash[:categoryIds] || (default_categories[api] ||= table.default_categories)
 
         # primary (target) ID may corresponds to multiple (source) IDs
-        if source != target
-          # entries = Relation.convert(source, target, query, reverse: true)
-          entries = entry_cache[source][query]
-        else
-          entries = [query]
-        end
+        entries = if source != target
+                    entry_cache[source][query] || []
+                  else
+                    [query]
+                  end
+
         cells = entries.flat_map do |entry|
           # json.properties.attributes (usually one but map for safe)
           table.labels(entry, conditions).map do |label|
