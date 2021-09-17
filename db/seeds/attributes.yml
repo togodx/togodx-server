@@ -89,3 +89,43 @@
 - api: interaction_proteins_in_pathway_reactome
   dataset: uniprot
   datamodel: classification
+
+- api: compound_action_type_chembl
+  dataset: chembl_compound
+  datamodel: classification
+
+- api: compound_application_type_chebi
+  dataset: chebi
+  datamodel: classification
+
+- api: compound_atc_classification_chembl
+  dataset: chembl_compound
+  datamodel: classification
+
+- api: compound_atc_classification_pubchem
+  dataset: pubchem_compound
+  datamodel: classification
+
+- api: compound_biological_role_chebi
+  dataset: chebi
+  datamodel: classification
+
+- api: compound_chemical_role_chebi
+  dataset: chebi
+  datamodel: classification
+
+- api: compound_drug_development_phase_chembl
+  dataset: chembl_compound
+  datamodel: classification
+
+- api: compound_drug_indication_mesh_chembl
+  dataset: chembl_compound
+  datamodel: classification
+
+- api: disease_diseases_mesh
+  dataset: mesh
+  datamodel: classification
+
+- api: disease_diseases_nando
+  dataset: nando
+  datamodel: classification
