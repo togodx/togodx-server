@@ -64,11 +64,10 @@ class GenerateTable < ApplicationInteraction
   end
 
   def find_labels(target, queries)
-    fields = '"classification", "classification_label"'
-    models = Attribute.where(dataset: target)
-    models.first.to_model_class.select(fields)
-          .union(*models.map { |x| x.table.select(fields).distinct.where(classification: queries) })
-          .pluck(:classification, :classification_label)
-          .to_h
+    Attribute.where(dataset: target).first.to_model_class.select(:identifier, :label)
+             .distinct
+             .union(*models.map { |x| x.table.find_labels(queries) })
+             .pluck(:identifier, :label)
+             .to_h
   end
 end

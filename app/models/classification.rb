@@ -40,6 +40,12 @@ class Classification < ApplicationRecord
       def built?
         where(parent_id: nil).count == 1
       end
+
+      def find_labels(queries)
+        select('"classification" AS "identifier", "classification_label" AS "label"')
+          .distinct
+          .where(classification: queries)
+      end
     end
 
     # @return [Array<Hash>]

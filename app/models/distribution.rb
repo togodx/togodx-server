@@ -65,6 +65,12 @@ class Distribution < ApplicationRecord
       def default_categories
         all.map(&:distribution)
       end
+
+      def find_labels(queries)
+        select('"distribution" AS "identifier", "distribution_label" AS "label"')
+          .distinct
+          .where(distribution: queries)
+      end
     end
   end
 end
