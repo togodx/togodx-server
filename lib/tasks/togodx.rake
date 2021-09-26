@@ -56,7 +56,7 @@ namespace :togodx do
     ActiveRecord::Base.logger = nil
 
     Attribute.classifications.each do |attribute|
-      next if (table = attribute.table).rebuilt?
+      next if (table = attribute.table).built?
 
       table_name = table.table_name
       Rails.logger.info('Rake') { "rebuilding #{table_name} (#{attribute.api})" }

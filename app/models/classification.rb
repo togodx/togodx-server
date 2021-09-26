@@ -37,7 +37,7 @@ class Classification < ApplicationRecord
         root.children.map(&:classification)
       end
 
-      def rebuilt?
+      def built?
         where(parent_id: nil).count == 1
       end
     end
