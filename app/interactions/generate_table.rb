@@ -64,10 +64,11 @@ class GenerateTable < ApplicationInteraction
   end
 
   def find_labels(target, queries)
-    Attribute.where(dataset: target).first.to_model_class.select(:identifier, :label)
-             .distinct
-             .union(*models.map { |x| x.table.find_labels(queries) })
-             .pluck(:identifier, :label)
-             .to_h
+    models = Attribute.where(dataset: target)
+    models.first.to_model_class.select(:identifier, :label)
+          .distinct
+          .union(*models.map { |x| x.table.find_labels(queries) })
+          .pluck(:identifier, :label)
+          .to_h
   end
 end
