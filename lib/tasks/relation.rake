@@ -10,10 +10,16 @@ namespace :relation do
       Relation.select(:db1, :db2).distinct.pluck(:db1, :db2)
 
     connection = Faraday.new(url: 'https://integbio.jp') do |builder|
-      builder.adapter :net_http_persistent do |http| # yields Net::HTTP::Persistent
+      builder.adapter :net_http_persistent do |http|
         http.idle_timeout = 300
         http.read_timeout = 1.hour
       end
+
+      builder.request :retry, {
+        methods: [],
+        retry_if: ->(env, _exception) { !(400..499).include?(env.status) },
+        max: 3,
+      }
     end
 
     pair.each do |src, dst|
@@ -28,7 +34,7 @@ namespace :relation do
         Rails.logger.info('Rake') { "  unique identifiers: #{ids.count}" }
 
         ActiveRecord::Base.transaction do
-          ids.each_slice(100) do |g|
+          ids.each_slice(dst == 'togovar' ? 50 : 100) do |g|
             begin
               response = connection.post('/togosite/sparqlist/api/togoid_route_sparql') do |conn|
                 conn.headers['Content-Type'] = 'application/x-www-form-urlencoded'
