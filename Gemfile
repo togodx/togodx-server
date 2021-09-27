@@ -19,6 +19,7 @@ gem 'rack-cors', '~> 1.1'
 
 # http client
 gem 'faraday', '~> 1.7'
+gem 'net-http-persistent', '~> 4.0'
 
 # extension
 gem 'active_interaction', '~> 4.0'
