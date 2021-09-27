@@ -28,7 +28,7 @@ namespace :relation do
         Rails.logger.info('Rake') { "  unique identifiers: #{ids.count}" }
 
         ActiveRecord::Base.transaction do
-          ids.each_slice(1000) do |g|
+          ids.each_slice(100) do |g|
             response = connection.post('/togosite/sparqlist/api/togoid_route_sparql') do |conn|
               conn.headers['Content-Type'] = 'application/x-www-form-urlencoded'
               conn.body = URI.encode_www_form({ source: src, target: dst, ids: g.join(',') })
