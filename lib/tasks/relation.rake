@@ -17,6 +17,8 @@ namespace :relation do
     end
 
     pair.each do |src, dst|
+      next if dst == 'togovar'
+
       Rails.logger.info('Rake') { "Retrieving ID mapping for `#{src}` to `#{dst}`" }
 
       time = Benchmark.realtime do
