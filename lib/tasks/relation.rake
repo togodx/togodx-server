@@ -27,12 +27,18 @@ namespace :relation do
 
         ActiveRecord::Base.transaction do
           ids.each_slice(100) do |g|
-            response = connection.post('/togosite/sparqlist/api/togoid_route_sparql') do |conn|
-              conn.headers['Content-Type'] = 'application/x-www-form-urlencoded'
-              conn.body = URI.encode_www_form({ source: src, target: dst, ids: g.join(',') })
-            end
+            begin
+              response = connection.post('/togosite/sparqlist/api/togoid_route_sparql') do |conn|
+                conn.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+                conn.body = URI.encode_www_form({ source: src, target: dst, ids: g.join(',') })
+              end
 
-            Relation.import %i[db1 entry1 db2 entry2], JSON.parse(response.body).map { |hash| [src, hash['source_id'], dst, hash['target_id']] }
+              Relation.import %i[db1 entry1 db2 entry2], JSON.parse(response.body).map { |hash| [src, hash['source_id'], dst, hash['target_id']] }
+            rescue => e
+              Rails.logger.error('Rake') { "Requested identifiers: #{g.join(',')}" }
+              Rails.logger.error('Rake') { "Error: #{e.respond_to?(:inspect) ? e.inspect : e}" }
+              raise e
+            end
           end
         end
       end
