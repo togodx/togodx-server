@@ -17,8 +17,17 @@ namespace :relation do
 
       builder.request :retry, {
         methods: [],
-        retry_if: ->(env, _exception) { !(400..499).include?(env.status) },
-        max: 3,
+        exceptions: [
+          Errno::ETIMEDOUT,
+          'Timeout::Error',
+          Faraday::TimeoutError,
+          Faraday::RetriableResponse,
+          Faraday::ConnectionFailed,
+        ],
+        retry_if: ->(env, _exception) { env.status == 404 || !(400..499).include?(env.status) },
+        interval: 2,
+        backoff_factor: 2,
+        max: 5,
       }
     end
 
