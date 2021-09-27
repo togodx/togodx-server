@@ -6,7 +6,8 @@ namespace :relation do
     Rails.logger = Logger.new(STDERR)
     ActiveRecord::Base.logger = nil
 
-    #Relation.truncate_table
+    pair = Attribute.select(:dataset).distinct.pluck(:dataset).permutation(2).to_a -
+      Relation.select(:db1, :db2).distinct.pluck(:db1, :db2)
 
     connection = Faraday.new(url: 'https://integbio.jp') do |builder|
       builder.adapter :net_http_persistent do |http| # yields Net::HTTP::Persistent
@@ -14,9 +15,6 @@ namespace :relation do
         http.read_timeout = 1.hour
       end
     end
-
-    pair = Attribute.select(:dataset).distinct.pluck(:dataset).permutation(2).to_a -
-      Relation.select(:db1, :db2).distinct.pluck(:db1, :db2)
 
     pair.each do |src, dst|
       Rails.logger.info('Rake') { "Retrieving ID mapping for `#{src}` to `#{dst}`" }
