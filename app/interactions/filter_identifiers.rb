@@ -1,12 +1,15 @@
 class FilterIdentifiers < ApplicationInteraction
   string :target
-  array :filters do
+  array :filters, default: [] do
     hash do
       string :propertyId
       array :categoryIds, default: [] do
         string
       end
     end
+  end
+  array :mappings, default: [] do
+    string
   end
 
   def execute
@@ -26,7 +29,7 @@ class FilterIdentifiers < ApplicationInteraction
         entries = Relation.convert(source, target, entries)
       end
 
-      entries.uniq
+      mappings.present? ? entries.uniq & mappings : entries.uniq
     end
 
     # AND (among different attributes)

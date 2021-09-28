@@ -18,7 +18,8 @@ class ApplicationController < ActionController::API
   def aggregate
     parameters = {
       target: params[:togoKey], # TODO: rename to target? subject? map_to? togokey?
-      filters: JSON.parse(params[:properties] || '[]').map(&:symbolize_keys) # TODO: rename to params[:filters]
+      filters: JSON.parse(params[:properties] || '[]').map(&:symbolize_keys), # TODO: rename to params[:filters]
+      mappings: JSON.parse(params[:inputIds] || '[]')
     }
 
     aggregate = FilterIdentifiers.run(parameters)
