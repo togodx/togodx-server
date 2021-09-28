@@ -45,7 +45,7 @@ class GenerateTable < ApplicationInteraction
               attribute: label
             }
           end
-        end
+        end.uniq
         # json.properties (cell of a column)
         {
           propertyId: api, # TODO: rename
