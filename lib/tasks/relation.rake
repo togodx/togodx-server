@@ -35,6 +35,8 @@ namespace :relation do
         backoff_factor: 2,
         max: 5,
       }
+
+      builder.response :raise_error
     end
 
     pair.each do |src, dst|
