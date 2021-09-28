@@ -68,8 +68,8 @@ class Distribution < ApplicationRecord
 
       def find_labels(queries)
         select('"distribution" AS "identifier", "distribution_label" AS "label"')
-          .distinct
           .where(distribution: queries)
+          .distinct
       end
     end
   end

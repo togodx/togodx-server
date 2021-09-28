@@ -43,8 +43,8 @@ class Classification < ApplicationRecord
 
       def find_labels(queries)
         select('"classification" AS "identifier", "classification_label" AS "label"')
-          .distinct
           .where(classification: queries)
+          .distinct
       end
     end
 
@@ -88,7 +88,7 @@ class Classification < ApplicationRecord
       count_queries = leaves.where(classification: queries).distinct.count(:classification)
 
       children_without_leaf.map do |child|
-        leaves = child.descendants.select(:classification).distinct.where(leaf: true).pluck(:classification)
+        leaves = child.descendants.where(leaf: true).distinct.pluck(:classification)
         count_subtotal = leaves.count
         count_hits = (queries & leaves).count
 
