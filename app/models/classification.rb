@@ -68,7 +68,7 @@ class Classification < ApplicationRecord
       # * renamed hasChild to tip as an inverse boolean
       {
         label: classification_label,
-        count: descendants.where(leaf: true).count,
+        count: descendants.where(leaf: true).distinct.count(:classification),
         categoryId: classification,
         hasChild: !children_without_leaf.count.zero?
       }
@@ -84,11 +84,11 @@ class Classification < ApplicationRecord
     def locate(queries)
       leaves = self.class.where(leaf: true)
 
-      count_total = leaves.count
-      count_queries = leaves.where(classification: queries).count
+      count_total = leaves.distinct.count(:classification)
+      count_queries = leaves.where(classification: queries).distinct.count(:classification)
 
       children_without_leaf.map do |child|
-        leaves = child.descendants.where(leaf: true).map(&:classification)
+        leaves = child.descendants.select(:classification).distinct.where(leaf: true).pluck(:classification)
         count_subtotal = leaves.count
         count_hits = (queries & leaves).count
 
