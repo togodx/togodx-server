@@ -20,11 +20,17 @@ namespace :relation do
         exceptions: [
           Errno::ETIMEDOUT,
           'Timeout::Error',
-          Faraday::TimeoutError,
+          Faraday::ClientError, # 4xx
+          Faraday::ServerError, # 5xx
           Faraday::RetriableResponse,
           Faraday::ConnectionFailed,
         ],
-        retry_if: ->(env, _exception) { env.status == 404 || !(400..499).include?(env.status) },
+        retry_if: -> (env, _exception) {
+          env.status == 404 || !(400..499).include?(env.status)
+        },
+        retry_block: -> (env, _options, retries, e) {
+          Rails.logger.debug('Rake') { "  retry request - status: #{env.status}, message: #{e.message}, remain: #{retries}" }
+        },
         interval: 2,
         backoff_factor: 2,
         max: 5,
