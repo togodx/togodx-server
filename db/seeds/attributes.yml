@@ -129,3 +129,75 @@
 - api: disease_diseases_nando
   dataset: nando
   datamodel: classification
+
+- api: glycan_mass_glycosmos
+  dataset: glytoucan
+  datamodel: distribution
+
+- api: glycan_subsumption_glycosmos
+  dataset: glytoucan
+  datamodel: classification
+
+- api: gene_biotype_ensembl
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: gene_high_level_expression_gtex6
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: gene_not_expressed_in_tissues_gtex
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: gene_specific_expression_in_tissues_hpa
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: gene_specific_expression_in_cells_hpa
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: structure_analysis_methods_pdb
+  dataset: pdb
+  datamodel: classification
+
+- api: structure_crystallization_ph_pdb
+  dataset: pdb
+  datamodel: classification
+
+- api: structure_crystallization_temperature_pdb
+  dataset: pdb
+  datamodel: classification
+
+- api: structure_number_of_alpha_helices_pdb
+  dataset: pdb
+  datamodel: distribution
+
+- api: structure_number_of_beta_sheets_pdb
+  dataset: pdb
+  datamodel: distribution
+
+- api: structure_other_related_molecules_pdb
+  dataset: pdb
+  datamodel: classification
+
+- api: structure_number_of_peptides_pdb
+  dataset: pdb
+  datamodel: distribution
+
+- api: disease_diseases_mondo
+  dataset: mondo
+  datamodel: classification
+
+- api: disease_related_dbs_mondo
+  dataset: mondo
+  datamodel: classification
+
+- api: disease_phenotypic_abnormality_hpo
+  dataset: hp
+  datamodel: classification
+
+- api: variant_gwas_togovar
+  dataset: togovar
+  datamodel: classification
