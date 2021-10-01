@@ -22,7 +22,7 @@ class GenerateTable < ApplicationInteraction
   end
 
   def execute
-    datasets = (filters + annotations).map(&:attribute)
+    datasets = (filters + annotations).map { |x| x[:attribute] }
                                      .uniq
                                      .map { |x| Attribute.from_api(x).dataset }
                                      .grep_v(target)
