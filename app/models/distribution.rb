@@ -8,6 +8,7 @@ class Distribution < ApplicationRecord
     module ClassMethods
       # @return [Array<Hash>]
       def breakdown(_node = nil, mode = nil)
+        mode ||= 'id_asc'
         sort_breakdown(histogram, mode).map { |hash| hash.merge(categoryId: hash[:categoryId].to_s) }
       end
 

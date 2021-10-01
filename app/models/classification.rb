@@ -54,6 +54,7 @@ class Classification < ApplicationRecord
         child.count_breakdown
       end
 
+      mode ||= 'numerical_desc'
       self.class.sort_breakdown(list, mode)
     end
 
