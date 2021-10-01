@@ -37,6 +37,10 @@ class Classification < ApplicationRecord
         root.children.map(&:classification)
       end
 
+      def sub_categories(node)
+        find_by(classification: node)&.children&.map(&:classification) || []
+      end
+
       def built?
         where(parent_id: nil).count == 1
       end

@@ -1,6 +1,5 @@
 class LocateIdentifiers < ApplicationInteraction
-  string :api
-  string :target
+  string :attribute
   string :source
   array :queries do
     string
@@ -8,10 +7,13 @@ class LocateIdentifiers < ApplicationInteraction
   string :node, default: nil
 
   def execute
+    attr = Attribute.from_api(attribute)
+    target = attr.dataset
+
     if source != target
       self.queries = Relation.convert(source, target, queries)
     end
 
-    Attribute.from_api(api).table.locate(queries, node)
+    attr.table.locate(queries, node)
   end
 end

@@ -1,9 +1,9 @@
 class ApplicationController < ActionController::API
-  # GET /breakdown/:api
-  # POST /breakdown/:api
+  # GET /breakdown/:attribute
+  # POST /breakdown/:attribute
   def breakdown
     parameters = {
-      attribute: params[:api], # rename to attribute? api_id => attribute_id
+      attribute: params[:attribute], # rename to attribute? api_id => attribute_id
       node: params[:categoryIds], # params[:node]
       mode: params[:mode]
     }
@@ -17,9 +17,9 @@ class ApplicationController < ActionController::API
   # POST /aggregate
   def aggregate
     parameters = {
-      target: params[:togoKey], # TODO: rename to target? subject? map_to? togokey?
-      filters: JSON.parse(params[:properties] || '[]').map(&:symbolize_keys), # TODO: rename to params[:filters]
-      mappings: JSON.parse(params[:inputIds] || '[]')
+      target: params[:togokey], # TODO: rename to target? subject? map_to? togokey?
+      filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
+      mappings: JSON.parse(params[:queries] || '[]')
     }
 
     aggregate = FilterIdentifiers.run(parameters)
@@ -31,9 +31,10 @@ class ApplicationController < ActionController::API
   # POST /dataframe
   def dataframe
     parameters = {
-      target: params[:togoKey], # TODO: rename to target? subject? map_to? togokey?
-      queries: JSON.parse(params[:queryIds] || '[]'), # TODO: rename to params[:queries]
-      filters: JSON.parse(params[:properties] || '[]').map(&:symbolize_keys) # TODO: rename to params[:filters]
+      target: params[:togokey], # TODO: rename to target? subject? map_to? togokey?
+      queries: JSON.parse(params[:queries] || '[]'),
+      filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
+      annotations: JSON.parse(params[:annotations] || '[]').map(&:symbolize_keys)
     }
 
     dataframe = GenerateTable.run(parameters)
@@ -45,11 +46,10 @@ class ApplicationController < ActionController::API
   # POST /locate
   def locate
     parameters = {
-      api: params[:sparqlet].sub(/.*\//, ''),
-      target: params[:primaryKey],
-      source: params[:userKey],
-      queries: params[:userIds].split(/,\s*/),
-      node: params[:categoryIds].presence # nil or one
+      attribute: params[:attribute].sub(/.*\//, ''),
+      source: params[:togokey],
+      queries: params[:queries].split(/,\s*/),
+      node: params[:node].presence
     }
 
     location = LocateIdentifiers.run(parameters)

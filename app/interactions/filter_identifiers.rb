@@ -1,26 +1,28 @@
 class FilterIdentifiers < ApplicationInteraction
   string :target
+
   array :filters, default: [] do
     hash do
-      string :propertyId
-      array :categoryIds, default: [] do
+      string :attribute
+      array :nodes, default: [] do
         string
       end
     end
   end
+
   array :mappings, default: [] do
     string
   end
 
   def execute
-    idsets = filters.select { |x| x.has_key?(:categoryIds) }.map do |hash|
+    idsets = filters.select { |x| x.has_key?(:nodes) }.map do |hash|
       entries = []
 
-      attribute = Attribute.from_api(hash[:propertyId])
+      attribute = Attribute.from_api(hash[:attribute])
       table = attribute.table
       source = attribute.dataset
 
-      hash[:categoryIds].each do |condition|
+      hash[:nodes].each do |condition|
         # OR (within a same attribute)
         entries += table.entries(condition)
       end
