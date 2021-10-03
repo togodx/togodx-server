@@ -42,7 +42,7 @@ class Classification < ApplicationRecord
       end
 
       def built?
-        where(parent_id: nil).count == 1
+        where.not(parent_id: nil).count.positive?
       end
 
       def find_labels(queries)
