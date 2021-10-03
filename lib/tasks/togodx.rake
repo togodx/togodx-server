@@ -1,5 +1,6 @@
 namespace :togodx do
   require 'csv'
+  require 'dag'
   require 'activerecord-import'
 
   # Example: rails 'togodx:load[gene_chromosome_ensembl]' < ../togodx-server-sample-data/gene_chromosome_ensembl.csv
@@ -214,7 +215,14 @@ namespace :togodx do
                   end
 
       time = Benchmark.realtime do
-        JSON.load_file(file).map { |x| converter.call(x) }.each_slice(1000) do |values|
+        json = JSON.load_file(file)
+
+        if %w[protein_biological_process_uniprot protein_cellular_component_uniprot protein_molecular_function_uniprot]
+             .include? args['api'] # TODO: add flag whether if the tree is dag to `Attribute` model?
+          json = Dag.new(json).to_tree
+        end
+
+        json.map { |x| converter.call(x) }.each_slice(1000) do |values|
           klass.import values
         end
       end
