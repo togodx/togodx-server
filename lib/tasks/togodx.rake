@@ -164,6 +164,9 @@ namespace :togodx do
                  end
 
     attributes.each do |attribute|
+      api = attribute.api
+      Rails.logger.info('Rake') { "importing #{api}" }
+
       schema = File.read(File.expand_path(File.join('db', 'schema.rb'), Rails.root))
 
       model = attribute.to_model_class
@@ -176,7 +179,7 @@ namespace :togodx do
         eval m[0].gsub(template_table, table)
       end
 
-      file = cache_path.join("#{attribute.api}.json")
+      file = cache_path.join("#{api}.json")
       unless file.exist?
         Rails.logger.info('Rake') { "#{file.relative_path_from(Rails.root)} not found, skipped" }
         next
@@ -217,8 +220,9 @@ namespace :togodx do
       time = Benchmark.realtime do
         json = JSON.load_file(file)
 
-        if %w[protein_biological_process_uniprot protein_cellular_component_uniprot protein_molecular_function_uniprot]
-             .include? args['api'] # TODO: add flag whether if the tree is dag to `Attribute` model?
+        if %w[protein_biological_process_uniprot protein_cellular_component_uniprot protein_molecular_function_uniprot protein_ligands_uniprot]
+             .include? api # TODO: add flag whether if the tree is dag to `Attribute` model?
+          Rails.logger.info('Rake') { "  convert DAG to tree" }
           json = Dag.new(json).to_tree
         end
 
@@ -227,7 +231,7 @@ namespace :togodx do
         end
       end
 
-      Rails.logger.info('Rake') { "import #{(n = klass.count)} #{'record'.pluralize(n)} to #{table}: #{'%.3f' % time} sec" }
+      Rails.logger.info('Rake') { "  import #{(n = klass.count)} #{'record'.pluralize(n)} to #{table}: #{'%.3f' % time} sec" }
     end
   end
 end
