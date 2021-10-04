@@ -45,7 +45,7 @@ class GenerateTable < ApplicationInteraction
       node = annotation.delete(:node)
 
       table = Attribute.from_api(attribute).table
-      annotation[:nodes] = node ? table.sub_categories(node).push(node) : table.default_categories
+      annotation[:nodes] = node ? table.sub_categories(node) : table.default_categories
 
       annotation
     end

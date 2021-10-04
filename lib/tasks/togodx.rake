@@ -197,20 +197,20 @@ namespace :togodx do
                   when Attribute::DataModel::CLASSIFICATION
                     lambda do |hash|
                       {
-                        classification: hash['id'].to_s,
-                        classification_label: hash['label'].to_s,
-                        classification_parent: hash['parent'].to_s,
-                        leaf: hash['leaf'] == true
+                        classification: hash[:id].to_s,
+                        classification_label: hash[:label].to_s,
+                        classification_parent: hash[:parent].to_s,
+                        leaf: hash[:leaf] == true
                       }
                     end
                   when Attribute::DataModel::DISTRIBUTION
                     lambda do |hash|
                       {
-                        distribution: hash['id'].to_s,
-                        distribution_label: hash['label'].to_s,
-                        distribution_value: hash['value'].to_s,
-                        bin_id: hash['binId'].to_s,
-                        bin_label: hash['binLabel'].to_s
+                        distribution: hash[:id].to_s,
+                        distribution_label: hash[:label].to_s,
+                        distribution_value: hash[:value].to_s,
+                        bin_id: hash[:binId].to_s,
+                        bin_label: hash[:binLabel].to_s
                       }
                     end
                   else
@@ -218,7 +218,7 @@ namespace :togodx do
                   end
 
       time = Benchmark.realtime do
-        json = JSON.load_file(file)
+        json = JSON.load_file(file).map(&:deep_symbolize_keys)
 
         if %w[protein_biological_process_uniprot protein_cellular_component_uniprot protein_molecular_function_uniprot protein_ligands_uniprot]
              .include? api # TODO: add flag whether if the tree is dag to `Attribute` model?
