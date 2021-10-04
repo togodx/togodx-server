@@ -201,3 +201,11 @@
 - api: variant_gwas_togovar
   dataset: togovar
   datamodel: classification
+
+- api: glycan_tissue_glycosmos
+  dataset: glytoucan
+  datamodel: classification
+
+- api: variant_clinical_significance_togovar
+  dataset: togovar
+  datamodel: classification
