@@ -31,4 +31,5 @@
 /config/master.key
 /config/credentials.yml.enc
 
+/.env
 /docker-compose.yml
