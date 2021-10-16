@@ -93,7 +93,7 @@ class Classification < ApplicationRecord
       count_queries = leaves.where(classification: queries).distinct.count(:classification)
 
       children_without_leaf.map do |child|
-        leaves = child.descendants.where(leaf: true).distinct.pluck(:classification)
+        leaves = child.descendants.where(leaf: true).distinct.unscope(:order).pluck(:classification)
         count_subtotal = leaves.count
         count_hits = (queries & leaves).count
 
