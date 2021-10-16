@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+set -eu
+
+DB_USER="${DB_USER:-togodx}"
+DB_NAME="${DB_NAME:-togodx_server_development}"
+DB_HOST="${DB_HOST:-localhost}"
+DB_PORT="${DB_PORT:-}"
+
+SQLITE=$1
+shift
+
+WORK_DIR=$(mktemp -d)
+echo "working dir: $WORK_DIR"
+
+function cleanup {
+  echo "remove working dir: $WORK_DIR"
+  rm -rf "$WORK_DIR"
+}
+
+trap cleanup EXIT
+
+PSQL_OPTS="-h $DB_HOST $(if [[ -n $DB_PORT ]]; then echo "-p $DB_PORT"; else echo ""; fi) -U $DB_USER $DB_NAME"
+
+# dump schema
+docker-compose exec -T db bash -c "eval \"pg_dump -s $PSQL_OPTS\"" >"${WORK_DIR}/schema.ddl"
+docker-compose exec -T db bash -c "eval \"pg_dump -s -t classifications $PSQL_OPTS\"" | \
+  grep -v '^CREATE INDEX' >"${WORK_DIR}/create_classifications.ddl"
+docker-compose exec -T db bash -c "eval \"pg_dump -s -t distributions $PSQL_OPTS\"" | \
+  grep -v '^CREATE INDEX' >"${WORK_DIR}/create_distributions.ddl"
+
+function exec_sql() {
+  docker-compose exec -T db bash -c "eval \"psql $PSQL_OPTS\""
+}
+
+# drop index
+grep '^CREATE INDEX' "${WORK_DIR}/schema.ddl" | \
+  sed 's/CREATE INDEX \([a-zA-Z_0-9]\+\) .*/DROP INDEX IF EXISTS \1 CASCADE;/' | \
+  exec_sql
+
+# append sql for dynamic tables
+tables=()
+while read -r line; do
+  datamodel=$(echo "$line" | cut -f1)
+  id=$(echo "$line" | cut -f2)
+
+  tables+=("table${id}")
+
+  if [[ $datamodel = "classification" ]]; then
+    grep -v -e '^--' -e '^SET' -e '^SELECT' "${WORK_DIR}/create_classifications.ddl" | \
+    sed -e "s/classifications_pkey/table${id}_pkey/g" \
+        -e "s/public\.classifications/public.table${id}/g" | \
+    sed '/^$/d' >>"${WORK_DIR}/create_tables.ddl"
+
+    {
+        echo "CREATE INDEX index_table${id}_on_classification ON public.table${id} USING btree (classification);"
+        echo "CREATE INDEX index_table${id}_on_leaf ON public.table${id} USING btree (leaf);"
+        echo "CREATE INDEX index_table${id}_on_lft ON public.table${id} USING btree (lft);"
+        echo "CREATE INDEX index_table${id}_on_parent_id ON public.table${id} USING btree (parent_id);"
+        echo "CREATE INDEX index_table${id}_on_rgt ON public.table${id} USING btree (rgt);"
+    } >>"${WORK_DIR}/create_index.ddl"
+  elif [[ $datamodel = "distribution" ]]; then
+    grep -v -e '^--' -e '^SET' -e '^SELECT' "${WORK_DIR}/create_distributions.ddl" |
+    sed -e "s/distributions_pkey/table${id}_pkey/g" \
+        -e "s/public\.distributions/public.table${id}/g" | \
+    sed '/^$/d' >>"${WORK_DIR}/create_tables.ddl"
+
+    {
+        echo "CREATE INDEX index_table${id}_on_distribution ON public.table${id} USING btree (distribution);"
+        echo "CREATE INDEX index_table${id}_on_distribution_value ON public.table${id} USING btree (distribution_value);"
+    } >>"${WORK_DIR}/create_index.ddl"
+  else
+    echo "unknown data model: ${datamodel}" >&2
+    exit 1
+  fi
+done < <(sqlite3 -separator $'\t' "$SQLITE" 'SELECT datamodel, id FROM attributes;')
+
+exec_sql <"${WORK_DIR}/create_tables.ddl"
+
+function copy_table() {
+  local table_name=$1
+
+  echo "COPY ${table_name}"
+
+  local columns
+  columns=$(sqlite3 -separator $'\t' "$SQLITE" "PRAGMA table_info('$table_name');" | cut -f2 | tr '\n' ',' | sed -e 's/id,//' -e 's/,$//')
+
+  local sql="COPY $table_name (${columns}) FROM STDIN WITH NULL AS '';"
+
+  time sqlite3 -separator $'\t' "$SQLITE" "SELECT $columns FROM $table_name;" | docker-compose exec -T db bash -c "eval \"psql $PSQL_OPTS -c \\\"$sql\\\"\""
+  echo
+}
+
+# copy all tables
+for id in "${tables[@]}"; do
+  copy_table "$id"
+done
+copy_table properties
+copy_table relations
+
+# create index
+time exec_sql <"${WORK_DIR}/create_index.ddl"
+time grep '^CREATE INDEX' "${WORK_DIR}/schema.ddl" | exec_sql
+echo
+
+echo "ANALYZE"
+echo "ANALYZE;" | exec_sql
+echo
