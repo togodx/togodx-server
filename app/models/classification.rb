@@ -55,9 +55,9 @@ class Classification < ApplicationRecord
 
     # @return [Array<Hash>]
     def breakdown(mode = nil)
-      list = children_without_leaf.map do |child|
-        child.count_breakdown
-      end
+      list = children_without_leaf
+               .map { |child| child.count_breakdown }
+               .reject { |x| x[:count].zero? }
 
       mode ||= 'numerical_desc'
       self.class.sort_breakdown(list, mode)
