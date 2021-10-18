@@ -36,7 +36,7 @@ class Classification < ApplicationRecord
 
       # TODO: frontend should pass default categories
       def default_categories
-        sub_categories(root.children.classification)
+        sub_categories(root.classification)
       end
 
       def sub_categories(node)
