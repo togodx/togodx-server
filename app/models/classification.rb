@@ -36,11 +36,11 @@ class Classification < ApplicationRecord
 
       # TODO: frontend should pass default categories
       def default_categories
-        root.children.map(&:classification)
+        sub_categories(root.children.classification)
       end
 
       def sub_categories(node)
-        find_by(classification: node)&.children&.map(&:classification) || []
+        find_by(classification: node)&.children&.where(leaf: false)&.map(&:classification) || []
       end
 
       def built?
