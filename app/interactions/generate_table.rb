@@ -42,7 +42,7 @@ class GenerateTable < ApplicationInteraction
     # replace with children categories
     annons = annotations.map do |annotation|
       attribute = annotation[:attribute]
-      node = annotation.delete(:node)
+      node = annotation[:node]
 
       table = Attribute.from_api(attribute).table
       annotation[:nodes] = node ? table.sub_categories(node) : table.default_categories
@@ -67,7 +67,7 @@ class GenerateTable < ApplicationInteraction
 
         cells = entries.flat_map do |entry|
           # json.properties.attributes (usually one but map for safe)
-          table.labels(entry, hash[:nodes]).map do |label|
+          table.labels(entry, hash[:nodes], hash[:node]).map do |label|
             {
               id: entry, # TODO: rename
               attribute: label

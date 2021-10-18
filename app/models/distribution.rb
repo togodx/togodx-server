@@ -30,7 +30,7 @@ class Distribution < ApplicationRecord
         (node ? where(bin_id: node) : all).map(&:distribution)
       end
 
-      def labels(node, _conditions)
+      def labels(node, _conditions, _parent)
         where(distribution: node).map do |leaf|
           {
             categoryId: node,
