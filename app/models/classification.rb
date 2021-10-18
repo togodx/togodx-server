@@ -72,11 +72,12 @@ class Classification < ApplicationRecord
     def count_breakdown
       # * renamed categoryId to node (or classificaiton, too long though)
       # * renamed hasChild to tip as an inverse boolean
+      count = descendants.where(leaf: true).distinct.count(:classification)
       {
         label: classification_label,
-        count: descendants.where(leaf: true).distinct.count(:classification),
+        count: count,
         categoryId: classification,
-        hasChild: !children_without_leaf.count.zero?
+        hasChild: children_without_leaf.count.positive? && count.positive?
       }
     end
 
