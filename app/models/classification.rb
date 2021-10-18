@@ -18,11 +18,12 @@ class Classification < ApplicationRecord
         (node ? find_by(classification: node) : root)&.entries || []
       end
 
-      def labels(node, conditions, parent)
-        filter = parent ? find_by(classification: parent).descendants : all
-        filter.where(classification: conditions).map { |x| x.descendants.find_by(classification: node) }.compact.map do |x|
+      def labels(node, conditions)
+        where(classification: conditions).map { |x| [x, x.descendants.where(leaf: true).find_by(classification: node)] }
+                                         .reject { |_x, y| y.nil?  }
+                                         .map do |x, y|
           {
-            categoryId: x.classification,
+            categoryId: y.classification,
             uri: "TODO: FIXME",
             label: x.classification_label
           }
