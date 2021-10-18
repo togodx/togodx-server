@@ -1,0 +1,23 @@
+{
+  "stanzas": [
+    "https://togostanza.github.io/metastanza/hash-table.js",
+    "https://togostanza.github.io/metastanza/barchart.js",
+    "https://togostanza.github.io/metastanza/pagination-table.js"
+  ],
+  "templates": {
+    "chebi": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/chebi.hbs",
+    "chembl_compound": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/chembl_compound.hbs",
+    "ensembl_gene": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/ensembl_gene.hbs",
+    "ensembl_transcript": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/ensembl_transcript.hbs",
+    "glytoucan": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/glytoucan.hbs",
+    "hp": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/hp.hbs",
+    "mesh": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/mesh.hbs",
+    "mondo": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/mondo.hbs",
+    "nando": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/nando.hbs",
+    "ncbigene": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/ncbigene.hbs",
+    "pdb": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/pdb.hbs",
+    "pubchem_compound": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/pubchem_compound.hbs",
+    "togovar": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/togovar.hbs",
+    "uniprot": "https://raw.githubusercontent.com/togodx/togodx-config-human/develop/templates/uniprot.hbs"
+  }
+}

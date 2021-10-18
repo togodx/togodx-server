@@ -1,6 +1,14 @@
 version: "3"
 
 services:
+  frontend:
+    build:
+      context: ./test
+      dockerfile: Dockerfile
+    container_name: togodx-frontend-dev
+    ports:
+      - "8080:8080"
+
   app:
     image: ruby:3.0.2
     env_file:

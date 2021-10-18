@@ -1,0 +1,11 @@
+{
+  "aggregate": {
+    "url": "https://integbio.jp/togosite/sparqlist/api/togodx_aggregate"
+  },
+  "dataframe": {
+    "url": "https://integbio.jp/togosite/sparqlist/api/togodx_dataframe"
+  },
+  "locate": {
+    "url": "https://integbio.jp/togosite/sparqlist/api/togodx_locate"
+  }
+}

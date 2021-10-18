@@ -1,0 +1,6 @@
+{
+  "PROPERTIES": "http://localhost:8080/properties.json",
+  "TEMPLATES": "http://localhost:8080/templates.json",
+  "BACKEND": "http://localhost:8080/backend.json",
+  "ATTRIBUTES": "http://localhost:8080/attributes.json"
+}
