@@ -23,7 +23,7 @@ class Classification < ApplicationRecord
                                          .reject { |_x, y| y.nil?  }
                                          .map do |x, y|
           {
-            categoryId: y.classification,
+            categoryId: x.classification,
             uri: "TODO: FIXME",
             label: x.classification_label
           }
