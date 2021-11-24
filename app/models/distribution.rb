@@ -30,11 +30,10 @@ class Distribution < ApplicationRecord
         (node ? where(bin_id: node) : all).map(&:distribution)
       end
 
-      def labels(node, _conditions)
-        where(distribution: node).map do |leaf|
+      def labels(nodes, conditions)
+        where(distribution: nodes, bin_id: conditions).map do |leaf|
           {
-            categoryId: leaf.bin_id,
-            uri: 'TODO: FIXME',
+            id: leaf.distribution,
             label: leaf.bin_label
           }
         end

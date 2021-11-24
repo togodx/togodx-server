@@ -65,21 +65,12 @@ class GenerateTable < ApplicationInteraction
                     [query]
                   end
 
-        cells = entries.flat_map do |entry|
-          # json.properties.attributes (usually one but map for safe)
-          table.labels(entry, hash[:nodes]).map do |label|
-            {
-              id: entry, # TODO: rename
-              attribute: label
-            }
-          end
-        end.uniq
         # json.properties (cell of a column)
         {
           attribute: api, # TODO: rename
           propertyLabel: 'TODO: probably notused', # TODO: rename
           propertyKey: source, # TODO: rename
-          attributes: cells # TODO: rename
+          attributes: table.labels(entries, hash[:nodes]) # TODO: rename
         }
       end
       # json (primary ID and corresponding columns)

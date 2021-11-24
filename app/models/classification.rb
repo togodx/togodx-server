@@ -18,16 +18,16 @@ class Classification < ApplicationRecord
         (node ? find_by(classification: node) : root)&.entries || []
       end
 
-      def labels(node, conditions)
-        where(classification: conditions).map { |x| [x, x.descendants.where(leaf: true).find_by(classification: node)] }
-                                         .reject { |_x, y| y.nil?  }
-                                         .map do |x, y|
-          {
-            categoryId: x.classification,
-            uri: "TODO: FIXME",
-            label: x.classification_label
-          }
-        end
+      def labels(nodes, conditions)
+        where(classification: conditions).map { |node| [node, node.descendants.where(leaf: true, classification: nodes)] }
+                                         .map do |node, leaves|
+          leaves.pluck(:classification).uniq.map do |classification|
+            {
+              id: classification,
+              label: node.classification_label
+            }
+          end
+        end.flatten
       end
 
       def locate(queries, node = nil)
