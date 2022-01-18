@@ -24,9 +24,9 @@ module Breakdown
     def comparator(mode)
       case mode
       when 'id_asc', nil # defalut
-        ->(a, b) { a[:categoryId] <=> b[:categoryId] }
+        ->(a, b) { a[:node] <=> b[:node] }
       when 'id_desc'
-        ->(a, b) { b[:categoryId] <=> a[:categoryId] }
+        ->(a, b) { b[:node] <=> a[:node] }
       when 'numerical_asc'
         ->(a, b) { a[:count] <=> b[:count] }
       when 'numerical_desc'

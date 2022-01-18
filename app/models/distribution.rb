@@ -9,17 +9,17 @@ class Distribution < ApplicationRecord
       # @return [Array<Hash>]
       def breakdown(_node = nil, mode = nil)
         mode ||= 'id_asc'
-        sort_breakdown(histogram, mode).map { |hash| hash.merge(categoryId: hash[:categoryId].to_s) }
+        sort_breakdown(histogram, mode).map { |hash| hash.merge(node: hash[:node].to_s) }
       end
 
       # @return [Array<Hash>]
       def histogram
         group(:bin_id, :bin_label).count.map do |k, v|
           {
+            node: k[0].to_i,
             label: k[1],
             count: v,
-            categoryId: k[0].to_i,
-            hasChild: false     # not used
+            leaf: true # not used
           }
         end
       end
@@ -53,11 +53,11 @@ class Distribution < ApplicationRecord
           .group('"t1"."bin_id"', '"t1"."bin_label"')
           .map do |x|
             {
-              categoryId: x.bin_id,
+              node: x.bin_id,
               label: x.bin_label,
               count: x.count_subtotal,
-              hit_count: x.count_hits,
-              pValue: pvalue(count_total, x.count_subtotal, count_queries, x.count_hits)
+              mapped: x.count_hits,
+              pvalue: pvalue(count_total, x.count_subtotal, count_queries, x.count_hits)
             }
           end
       end

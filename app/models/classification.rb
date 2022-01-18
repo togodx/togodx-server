@@ -18,6 +18,8 @@ class Classification < ApplicationRecord
         (node ? find_by(classification: node) : root)&.entries || []
       end
 
+      # @param [Object] nodes Identifiers
+      # @param [Object] conditions Selected nodes
       def labels(nodes, conditions)
         where(classification: conditions).map { |node| [node, node.descendants.where(leaf: true, classification: nodes)] }
                                          .map do |node, leaves|
@@ -71,14 +73,12 @@ class Classification < ApplicationRecord
 
     # @return [Hash]
     def count_breakdown
-      # * renamed categoryId to node (or classificaiton, too long though)
-      # * renamed hasChild to tip as an inverse boolean
       count = descendants.where(leaf: true).distinct.count(:classification)
       {
+        node: classification,
         label: classification_label,
         count: count,
-        categoryId: classification,
-        hasChild: children_without_leaf.count.positive? && count.positive?
+        leaf: (children_without_leaf.count.zero? || count.zero?)
       }
     end
 
@@ -101,11 +101,11 @@ class Classification < ApplicationRecord
         count_hits = (queries & leaves).count
 
         {
-          categoryId: child.classification,
+          node: child.classification,
           label: child.classification_label,
           count: count_subtotal,
-          hit_count: count_hits,
-          pValue: self.class.pvalue(count_total, count_subtotal, count_queries, count_hits)
+          mapped: count_hits,
+          pvalue: self.class.pvalue(count_total, count_subtotal, count_queries, count_hits)
         }
       end
     end

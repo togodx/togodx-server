@@ -2,13 +2,7 @@ class ApplicationController < ActionController::API
   # GET /breakdown/:attribute
   # POST /breakdown/:attribute
   def breakdown
-    parameters = {
-      attribute: params[:attribute], # rename to attribute? api_id => attribute_id
-      node: params[:categoryIds], # params[:node]
-      mode: params[:mode]
-    }
-
-    breakdown = CountBreakdown.run(parameters)
+    breakdown = CountBreakdown.run(breakdown_params)
 
     render_json breakdown.result, status: breakdown.valid? ? :ok : :bad_request
   end
@@ -58,6 +52,13 @@ class ApplicationController < ActionController::API
   end
 
   private
+
+  def breakdown_params
+    params
+      .permit(:attribute, :node)
+      .to_h
+      .symbolize_keys
+  end
 
   def render_json(body, status: :ok)
     render (params.key?(:pretty) ? :pretty_json : :json) => body, status: status
