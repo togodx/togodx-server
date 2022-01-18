@@ -4,7 +4,15 @@ module Breakdown
   module ClassMethods
     def sort_breakdown(list, mode)
       comparator = comparator(mode)
-      list.sort { |a, b| a[:categoryId] == 'unclassified' ? 1 : comparator.call(a, b) }
+      list.sort do |a, b|
+        if a[:categoryId] == 'unclassified'
+          1
+        elsif b[:categoryId] == 'unclassified'
+          -1
+        else
+          comparator.call(a, b)
+        end
+      end
     end
 
     def count_breakdown
