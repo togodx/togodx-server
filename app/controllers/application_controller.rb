@@ -7,6 +7,19 @@ class ApplicationController < ActionController::API
     render_json breakdown.result, status: breakdown.valid? ? :ok : :bad_request
   end
 
+  # GET /locate
+  # POST /locate
+  def locate
+    params = locate_params
+
+    location = LocateIdentifiers.run(attribute: params[:attribute],
+                                     source: params[:dataset],
+                                     queries: JSON.parse(params[:queries] || '[]'),
+                                     node: params[:node].presence)
+
+    render_json location.result, status: location.valid? ? :ok : :bad_request
+  end
+
   # GET /aggregate
   # POST /aggregate
   def aggregate
@@ -34,26 +47,18 @@ class ApplicationController < ActionController::API
     render_json dataframe.result, status: dataframe.valid? ? :ok : :bad_request
   end
 
-  # GET /locate
-  # POST /locate
-  def locate
-    parameters = {
-      attribute: params[:attribute].sub(/.*\//, ''),
-      source: params[:togokey],
-      queries: params[:queries].split(/,\s*/),
-      node: params[:node].presence
-    }
-
-    location = LocateIdentifiers.run(parameters)
-
-    render_json location.result, status: location.valid? ? :ok : :bad_request
-  end
-
   private
 
   def breakdown_params
     params
       .permit(:attribute, :node)
+      .to_h
+      .symbolize_keys
+  end
+
+  def locate_params
+    params
+      .permit(:attribute, :node, :dataset, :queries)
       .to_h
       .symbolize_keys
   end

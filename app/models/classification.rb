@@ -5,7 +5,6 @@ class Classification < ApplicationRecord
     extend ActiveSupport::Concern
 
     include Breakdown
-    include Pvalue
 
     module ClassMethods
       # @return [Array<Hash>]
@@ -105,7 +104,7 @@ class Classification < ApplicationRecord
           label: child.classification_label,
           count: count_subtotal,
           mapped: count_hits,
-          pvalue: self.class.pvalue(count_total, count_subtotal, count_queries, count_hits)
+          pvalue: Stat.pvalue(count_total, count_subtotal, count_queries, count_hits)
         }
       end
     end

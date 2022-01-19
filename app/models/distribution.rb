@@ -3,7 +3,6 @@ class Distribution < ApplicationRecord
     extend ActiveSupport::Concern
 
     include Breakdown
-    include Pvalue
 
     module ClassMethods
       # @return [Array<Hash>]
@@ -57,7 +56,7 @@ class Distribution < ApplicationRecord
               label: x.bin_label,
               count: x.count_subtotal,
               mapped: x.count_hits,
-              pvalue: pvalue(count_total, x.count_subtotal, count_queries, x.count_hits)
+              pvalue: Stat.pvalue(count_total, x.count_subtotal, count_queries, x.count_hits)
             }
           end
       end
