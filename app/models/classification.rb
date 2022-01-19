@@ -25,6 +25,7 @@ class Classification < ApplicationRecord
           leaves.pluck(:classification).uniq.map do |classification|
             {
               id: classification,
+              node: node.classification,
               label: node.classification_label
             }
           end

@@ -35,16 +35,14 @@ class ApplicationController < ActionController::API
   # GET /dataframe
   # POST /dataframe
   def dataframe
-    parameters = {
-      target: params[:togokey], # TODO: rename to target? subject? map_to? togokey?
-      queries: JSON.parse(params[:queries] || '[]'),
-      filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
-      annotations: JSON.parse(params[:annotations] || '[]').map(&:symbolize_keys)
-    }
+    params = dataframe_params
 
-    dataframe = GenerateTable.run(parameters)
+    dataframe = GenerateTable.run(target: params[:dataset],
+                                  queries: JSON.parse(params[:queries] || '[]'),
+                                  filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
+                                  annotations: JSON.parse(params[:annotations] || '[]').map(&:symbolize_keys))
 
-    render_json dataframe.result, status: dataframe.valid? ? :ok : :bad_request
+    render_json dataframe.result.to_json, status: dataframe.valid? ? :ok : :bad_request
   end
 
   private
@@ -66,6 +64,13 @@ class ApplicationController < ActionController::API
   def aggregate_params
     params
       .permit(:dataset, :filters, :queries)
+      .to_h
+      .symbolize_keys
+  end
+
+  def dataframe_params
+    params
+      .permit(:dataset, :filters, :annotations, :queries)
       .to_h
       .symbolize_keys
   end

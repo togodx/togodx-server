@@ -1,9 +1,5 @@
 class GenerateTable < ApplicationInteraction
-  string :target
-
-  array :queries do
-    string
-  end
+  string :target # TODO: rename to togo_key?
 
   array :filters, default: [] do
     hash do
@@ -21,11 +17,26 @@ class GenerateTable < ApplicationInteraction
     end
   end
 
+  array :queries do
+    string
+  end
+
   def execute
+    # replace with child categories
+    annotations = self.annotations.map do |annotation|
+      table = Attribute.from_api(annotation[:attribute]).table
+      node = annotation.delete(:node)
+      annotation.tap { |x| x[:nodes] = node ? table.sub_categories(node) : table.default_categories }
+    end
+
+    DataFrame.new(target, queries, filters + annotations)
+  end
+
+  def old_impl
     datasets = (filters + annotations).map { |x| x[:attribute] }
-                                     .uniq
-                                     .map { |x| Attribute.from_api(x).dataset }
-                                     .grep_v(target)
+                                      .uniq
+                                      .map { |x| Attribute.from_api(x).dataset }
+                                      .grep_v(target)
 
     entry_cache = datasets.map do |key|
       value = Relation.where(db1: key, db2: target, entry2: queries)
