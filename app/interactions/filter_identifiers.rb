@@ -10,28 +10,28 @@ class FilterIdentifiers < ApplicationInteraction
     end
   end
 
-  array :mappings, default: [] do
+  array :queries, default: [] do
     string
   end
 
   def execute
-    idsets = filters.select { |x| x.has_key?(:nodes) }.map do |hash|
+    idsets = filters.select { |filter| filter.has_key?(:nodes) }.map do |filter|
       entries = []
 
-      attribute = Attribute.from_api(hash[:attribute])
-      table = attribute.table
+      attribute = Attribute.from_api(filter[:attribute])
+      model = attribute.table
       source = attribute.dataset
 
-      hash[:nodes].each do |condition|
+      filter[:nodes].each do |condition|
         # OR (within a same attribute)
-        entries += table.entries(condition)
+        entries += model.entries(condition)
       end
 
       if source != target
-        entries = Relation.convert(source, target, entries)
+        entries = Relation.pairs(source, target, entries).map { |x| x[1] }
       end
 
-      mappings.present? ? entries.uniq & mappings : entries.uniq
+      queries.present? ? entries.uniq & queries : entries.uniq
     end
 
     # AND (among different attributes)

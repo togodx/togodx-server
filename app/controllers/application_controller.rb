@@ -10,13 +10,11 @@ class ApplicationController < ActionController::API
   # GET /aggregate
   # POST /aggregate
   def aggregate
-    parameters = {
-      target: params[:togokey], # TODO: rename to target? subject? map_to? togokey?
-      filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
-      mappings: JSON.parse(params[:queries] || '[]')
-    }
+    params = aggregate_params
 
-    aggregate = FilterIdentifiers.run(parameters)
+    aggregate = FilterIdentifiers.run(target: params[:dataset],
+                                      filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
+                                      queries: JSON.parse(params[:queries] || '[]'))
 
     render_json aggregate.result, status: aggregate.valid? ? :ok : :bad_request
   end
@@ -56,6 +54,13 @@ class ApplicationController < ActionController::API
   def breakdown_params
     params
       .permit(:attribute, :node)
+      .to_h
+      .symbolize_keys
+  end
+
+  def aggregate_params
+    params
+      .permit(:dataset, :filters, :queries)
       .to_h
       .symbolize_keys
   end
