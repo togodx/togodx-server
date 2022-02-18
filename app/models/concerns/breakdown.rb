@@ -5,9 +5,9 @@ module Breakdown
     def sort_breakdown(list, mode)
       comparator = comparator(mode)
       list.sort do |a, b|
-        if a[:categoryId] == 'unclassified'
+        if a[:node] == 'unclassified'
           1
-        elsif b[:categoryId] == 'unclassified'
+        elsif b[:node] == 'unclassified'
           -1
         else
           comparator.call(a, b)
