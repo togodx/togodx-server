@@ -1,3 +1,5 @@
+# @deprecated
+# TODO: migrate to togodx-human
 namespace :relation do
   require 'faraday'
 

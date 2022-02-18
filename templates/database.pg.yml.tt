@@ -1,0 +1,20 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%%= ENV.fetch('RAILS_MAX_THREADS') { 5 } %>
+  host: <%%= ENV.fetch('TOGODX_SERVER_DATABASE_HOST') { 'localhost' } %>
+  port: <%%= ENV.fetch('TOGODX_SERVER_DATABASE_PORT') { 5432 } %>
+  username: <%%= ENV.fetch('TOGODX_SERVER_DATABASE_USER') { 'togodx' } %>
+  password: <%%= ENV['TOGODX_SERVER_DATABASE_PASSWORD'] %>
+
+development:
+  <<: *default
+  database: togodx_server_development
+
+test:
+  <<: *default
+  database: togodx_server_test
+
+production:
+  <<: *default
+  database: togodx_server_production

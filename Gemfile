@@ -32,6 +32,12 @@ gem 'rubystats', '~> 0.3.0'
 # template engine
 gem 'jbuilder', '~> 2.11'
 
+# command-line interface
+gem 'thor', '~> 1.1'
+
+# utility
+gem 'rubyzip', '~> 2.3'
+
 # console
 gem 'pry-rails', '~> 0.3.9'
 

@@ -51,7 +51,7 @@ class Dag
       end
     end
 
-    @tree.reject! { |hash| @delete_edge.key? "#{hash[:id]}\t#{hash[:parent]}" }
+    @tree.tap { |tree| tree.reject! { |hash| @delete_edge.key? "#{hash[:id]}\t#{hash[:parent]}" } }
   end
 
   def delete_edge(id, parent)

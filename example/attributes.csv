@@ -1,0 +1,6 @@
+api,dataset,datamodel
+gene_chromosome_ensembl,ensembl_gene,classification
+gene_high_level_expression_refex,ncbigene,classification
+protein_cellular_component_uniprot,uniprot,classification
+protein_disease_related_proteins_uniprot,uniprot,classification
+protein_molecular_mass_uniprot,uniprot,distribution
