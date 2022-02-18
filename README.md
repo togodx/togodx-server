@@ -127,7 +127,7 @@ $ ./bin/togodx classification import --api protein_cellular_component_uniprot --
 $ ./bin/togodx classification import --api protein_disease_related_proteins_uniprot --dag-to-tree example/protein_disease_related_proteins_uniprot.json
 ```
 
-Data with the structure of a DAG is forced to be converted into a tree.
+Data whose structure is a DAG should be converted into a tree. Pass `--dag-to-tree` options to the command.
 See also [directed acyclic graph (DAG)](https://en.wikipedia.org/wiki/Directed_acyclic_graph).
 
 #### Distribution
