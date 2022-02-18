@@ -18,7 +18,6 @@ class Distribution < ApplicationRecord
             node: k[0].to_i,
             label: k[1],
             count: v,
-            leaf: true # not used
           }
         end
       end

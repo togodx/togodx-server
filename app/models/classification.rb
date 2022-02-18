@@ -78,7 +78,7 @@ class Classification < ApplicationRecord
         node: classification,
         label: classification_label,
         count: count,
-        leaf: (children_without_leaf.count.zero? || count.zero?)
+        tip: (children_without_leaf.count.zero? || count.zero?)
       }
     end
 
