@@ -16,22 +16,32 @@ attributes of each data set.
   * SQLite 3.8+
   * PostgreSQL 14+
 
+
 ## System dependencies
 
 * [TogoDX](https://github.com/togodx/togodx-app)
 
-### Use PostgreSQL instead of SQLite3 
 
-1. Comment out `gem 'sqlite3'` and uncomment `gem 'pg'` lines
+## Setup
+
+### Before installing gems
+
+#### Use SQLite3
+
+1. Comment out `gem 'pg'` in `Gemfile`.
+
+#### Use PostgreSQL instead of SQLite3
+
+1. Comment out `gem 'sqlite3'` in `Gemfile`.
 
 2. Create `.env` and fill values
 
-   ```
-   TOGODX_SERVER_DATABASE_HOST=
-   TOGODX_SERVER_DATABASE_PORT=
-   TOGODX_SERVER_DATABASE_USER=
-   TOGODX_SERVER_DATABASE_PASSWORD=
-   ```
+```
+TOGODX_SERVER_DATABASE_HOST=
+TOGODX_SERVER_DATABASE_PORT=
+TOGODX_SERVER_DATABASE_USER=
+TOGODX_SERVER_DATABASE_PASSWORD=
+```
 
 | Variable                    | Default   |
 |-----------------------------|-----------|
@@ -39,17 +49,20 @@ attributes of each data set.
 | TOGODX_SERVER_DATABASE_PORT | 5432      |
 | TOGODX_SERVER_DATABASE_USER | togodx    |
 
-   Note: The `TOGODX_SERVER_DATABASE_USER` must have `CREATEDB` privilege
+Note: The `TOGODX_SERVER_DATABASE_USER` must have `CREATEDB` privilege
 
-## Setup
+### Install gems
 
 ```shell
 $ bundle install
 ```
 
+### Initialize application
+
 ```shell
 $ ./bin/togodx init
 ```
+
 
 ## Database initialization
 
@@ -59,6 +72,7 @@ Run the following commands to create and setup the database.
 $ bundle exec rake db:create
 $ bundle exec rake db:setup
 ```
+
 
 ## Dataset preparation
 
@@ -141,3 +155,61 @@ $ ./bin/togodx distribution import --api protein_molecular_mass_uniprot example/
 ```shell
 $ ./bin/togodx relation import example/relation.csv
 ```
+
+
+## Use docker-compose
+
+1. Make symbolic link
+
+For development
+
+```shell
+$ ln -s docker/docker-compose.dev.yml docker-compose.yml
+```
+
+For production
+
+```shell
+$ ln -s docker/docker-compose.prod.yml docker-compose.yml
+```
+
+2. Create `.env` file
+
+```
+# Docker
+NGINX_PORT=80 # for production
+APP_PORT=3000 # for development
+
+# Rails
+TOGODX_SERVER_DATABASE_HOST=db
+TOGODX_SERVER_DATABASE_USER=togodx
+TOGODX_SERVER_DATABASE_PASSWORD=changeme
+
+# PostgreSQL
+POSTGRES_USER=togodx
+POSTGRES_PASSWORD=changeme
+```
+
+3. Initialization and import data
+
+```shell
+$ docker-compose run --rm app bundle install
+$ docker-compose run --rm app bin/togodx init
+$ docker-compose run --rm app rails db:create
+$ docker-compose run --rm app rails db:migrate
+$ docker-compose run --rm app bin/togodx attribute import example/attributes.csv
+$ docker-compose run --rm app bin/togodx classification import --api gene_chromosome_ensembl --dag-to-tree example/gene_chromosome_ensembl.json
+$ docker-compose run --rm app bin/togodx classification import --api gene_high_level_expression_refex --dag-to-tree example/gene_high_level_expression_refex.json
+$ docker-compose run --rm app bin/togodx classification import --api protein_cellular_component_uniprot --dag-to-tree example/protein_cellular_component_uniprot.json
+$ docker-compose run --rm app bin/togodx classification import --api protein_disease_related_proteins_uniprot --dag-to-tree example/protein_disease_related_proteins_uniprot.json
+$ docker-compose run --rm app bin/togodx distribution import --api protein_molecular_mass_uniprot example/protein_molecular_mass_uniprot.json
+$ docker-compose run --rm app bin/togodx relation import example/relation.csv
+```
+
+4. Start server
+
+```shell
+$ docker-compose up -d
+```
+
+Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pretty`

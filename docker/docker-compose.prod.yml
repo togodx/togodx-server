@@ -37,8 +37,9 @@ services:
 
   db:
     image: postgres:14
-    env_file:
-      - ../.env
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-togodx}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-changeme}"
     volumes:
       - ./data/pg_data:/var/lib/postgresql/data
       - ./docker/postgres/postgres.conf:/etc/postgresql/postgresql.conf:ro

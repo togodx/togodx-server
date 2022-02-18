@@ -57,6 +57,7 @@ class Init < Thor::Group
     inside 'vendor/bin', verbose: true do
       remove_file 'nested_set_indexer' if File.exist? 'nested_set_indexer'
 
+      say "Downloading from #{url.to_s}"
       Zip::File.open_buffer(URI.open(url.to_s)) do |zip|
         zip.each do |entry|
           next unless entry.name == 'nested_set_indexer'
