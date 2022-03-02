@@ -22,13 +22,13 @@ class DataFrame
           entry: query,
           label: labels[query]
         },
-        attributes: @columns.map do |column|
+        attributes: @columns.map do |name|
           {
-            id: column[:attribute],
-            items: column(column)[:entries][query].reject { |_, v| v.blank? }.flat_map do |entry, nodes|
+            id: name[:attribute],
+            items: (column(name)[:entries][query] || {}).reject { |_, v| v.blank? }.flat_map do |entry, nodes|
               nodes.map do |node|
                 {
-                  dataset: column(column)[:dataset],
+                  dataset: column(name)[:dataset],
                   entry: entry,
                   node: node[:node],
                   label: node[:label],
