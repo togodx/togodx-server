@@ -32,7 +32,7 @@ class Distribution < ApplicationRecord
         where(distribution: nodes, bin_id: conditions).map do |leaf|
           {
             id: leaf.distribution,
-            node: leaf.bin,
+            node: leaf.bin_id,
             label: leaf.bin_label
           }
         end
