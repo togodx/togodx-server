@@ -13,7 +13,7 @@ class LocateIdentifiers < ApplicationInteraction
 
     queries = self.queries
     if source != target
-      queries = Relation.convert(source, target, queries)
+      queries = Relation.convert(source, target, queries).values.flatten.uniq
     end
 
     model.locate(queries, node)
