@@ -10,13 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_18_082107) do
+ActiveRecord::Schema.define(version: 2022_03_02_120617) do
 
   create_table "attributes", force: :cascade do |t|
     t.string "api", null: false
     t.string "dataset", null: false
     t.string "datamodel", null: false
-    t.string "order"
     t.index ["api"], name: "index_attributes_on_api", unique: true
   end
 
@@ -61,8 +60,8 @@ ActiveRecord::Schema.define(version: 2022_01_18_082107) do
     t.string "entry1", null: false
     t.string "db2", null: false
     t.string "entry2", null: false
-    t.index ["entry1"], name: "index_relations_on_entry1"
-    t.index ["entry2"], name: "index_relations_on_entry2"
+    t.index ["entry1", "db1", "db2"], name: "index_relations_on_entry1_and_db1_and_db2"
+    t.index ["entry2", "db2", "db1"], name: "index_relations_on_entry2_and_db2_and_db1"
   end
 
   create_table "table1", force: :cascade do |t|
