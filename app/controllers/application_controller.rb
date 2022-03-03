@@ -49,7 +49,7 @@ class ApplicationController < ActionController::API
 
   def breakdown_params
     params
-      .permit(:attribute, :node)
+      .permit(:attribute, :node, :order)
       .to_h
       .symbolize_keys
   end
