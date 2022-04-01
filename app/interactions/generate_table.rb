@@ -1,9 +1,5 @@
 class GenerateTable < ApplicationInteraction
-  string :target
-
-  array :queries do
-    string
-  end
+  string :target # TODO: rename to togo_key?
 
   array :filters, default: [] do
     hash do
@@ -21,11 +17,26 @@ class GenerateTable < ApplicationInteraction
     end
   end
 
+  array :queries do
+    string
+  end
+
   def execute
+    # replace with child categories
+    annotations = self.annotations.map do |annotation|
+      table = Attribute.from_api(annotation[:attribute]).table
+      node = annotation.delete(:node)
+      annotation.tap { |x| x[:nodes] = node ? table.sub_categories(node) : table.default_categories }
+    end
+
+    DataFrame.new(target, queries, filters + annotations)
+  end
+
+  def old_impl
     datasets = (filters + annotations).map { |x| x[:attribute] }
-                                     .uniq
-                                     .map { |x| Attribute.from_api(x).dataset }
-                                     .grep_v(target)
+                                      .uniq
+                                      .map { |x| Attribute.from_api(x).dataset }
+                                      .grep_v(target)
 
     entry_cache = datasets.map do |key|
       value = Relation.where(db1: key, db2: target, entry2: queries)
@@ -65,21 +76,12 @@ class GenerateTable < ApplicationInteraction
                     [query]
                   end
 
-        cells = entries.flat_map do |entry|
-          # json.properties.attributes (usually one but map for safe)
-          table.labels(entry, hash[:nodes]).map do |label|
-            {
-              id: entry, # TODO: rename
-              attribute: label
-            }
-          end
-        end.uniq
         # json.properties (cell of a column)
         {
           attribute: api, # TODO: rename
           propertyLabel: 'TODO: probably notused', # TODO: rename
           propertyKey: source, # TODO: rename
-          attributes: cells # TODO: rename
+          attributes: table.labels(entries, hash[:nodes]) # TODO: rename
         }
       end
       # json (primary ID and corresponding columns)

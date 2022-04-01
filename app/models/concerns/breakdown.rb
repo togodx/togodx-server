@@ -4,7 +4,15 @@ module Breakdown
   module ClassMethods
     def sort_breakdown(list, mode)
       comparator = comparator(mode)
-      list.sort { |a, b| a[:categoryId] == 'unclassified' ? 1 : comparator.call(a, b) }
+      list.sort do |a, b|
+        if a[:node] == 'unclassified'
+          1
+        elsif b[:node] == 'unclassified'
+          -1
+        else
+          comparator.call(a, b)
+        end
+      end
     end
 
     def count_breakdown
@@ -15,10 +23,10 @@ module Breakdown
 
     def comparator(mode)
       case mode
-      when 'id_asc', nil # defalut
-        ->(a, b) { a[:categoryId] <=> b[:categoryId] }
+      when 'id_asc', nil
+        ->(a, b) { a[:node] <=> b[:node] }
       when 'id_desc'
-        ->(a, b) { b[:categoryId] <=> a[:categoryId] }
+        ->(a, b) { b[:node] <=> a[:node] }
       when 'numerical_asc'
         ->(a, b) { a[:count] <=> b[:count] }
       when 'numerical_desc'

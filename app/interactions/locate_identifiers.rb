@@ -9,11 +9,13 @@ class LocateIdentifiers < ApplicationInteraction
   def execute
     attr = Attribute.from_api(attribute)
     target = attr.dataset
+    model = attr.table
 
+    queries = self.queries
     if source != target
-      self.queries = Relation.convert(source, target, queries)
+      queries = Relation.convert(source, target, queries).values.flatten.uniq
     end
 
-    attr.table.locate(queries, node)
+    model.locate(queries, node)
   end
 end

@@ -2,27 +2,32 @@ class ApplicationController < ActionController::API
   # GET /breakdown/:attribute
   # POST /breakdown/:attribute
   def breakdown
-    parameters = {
-      attribute: params[:attribute], # rename to attribute? api_id => attribute_id
-      node: params[:categoryIds], # params[:node]
-      mode: params[:mode]
-    }
-
-    breakdown = CountBreakdown.run(parameters)
+    breakdown = CountBreakdown.run(breakdown_params)
 
     render_json breakdown.result, status: breakdown.valid? ? :ok : :bad_request
+  end
+
+  # GET /locate
+  # POST /locate
+  def locate
+    params = locate_params
+
+    location = LocateIdentifiers.run(attribute: params[:attribute],
+                                     source: params[:dataset],
+                                     queries: JSON.parse(params[:queries] || '[]'),
+                                     node: params[:node].presence)
+
+    render_json location.result, status: location.valid? ? :ok : :bad_request
   end
 
   # GET /aggregate
   # POST /aggregate
   def aggregate
-    parameters = {
-      target: params[:togokey], # TODO: rename to target? subject? map_to? togokey?
-      filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
-      mappings: JSON.parse(params[:queries] || '[]')
-    }
+    params = aggregate_params
 
-    aggregate = FilterIdentifiers.run(parameters)
+    aggregate = FilterIdentifiers.run(target: params[:dataset],
+                                      filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
+                                      queries: JSON.parse(params[:queries] || '[]'))
 
     render_json aggregate.result, status: aggregate.valid? ? :ok : :bad_request
   end
@@ -30,34 +35,45 @@ class ApplicationController < ActionController::API
   # GET /dataframe
   # POST /dataframe
   def dataframe
-    parameters = {
-      target: params[:togokey], # TODO: rename to target? subject? map_to? togokey?
-      queries: JSON.parse(params[:queries] || '[]'),
-      filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
-      annotations: JSON.parse(params[:annotations] || '[]').map(&:symbolize_keys)
-    }
+    params = dataframe_params
 
-    dataframe = GenerateTable.run(parameters)
+    dataframe = GenerateTable.run(target: params[:dataset],
+                                  queries: JSON.parse(params[:queries] || '[]'),
+                                  filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
+                                  annotations: JSON.parse(params[:annotations] || '[]').map(&:symbolize_keys))
 
-    render_json dataframe.result, status: dataframe.valid? ? :ok : :bad_request
-  end
-
-  # GET /locate
-  # POST /locate
-  def locate
-    parameters = {
-      attribute: params[:attribute].sub(/.*\//, ''),
-      source: params[:togokey],
-      queries: params[:queries].split(/,\s*/),
-      node: params[:node].presence
-    }
-
-    location = LocateIdentifiers.run(parameters)
-
-    render_json location.result, status: location.valid? ? :ok : :bad_request
+    render_json dataframe.result.to_json, status: dataframe.valid? ? :ok : :bad_request
   end
 
   private
+
+  def breakdown_params
+    params
+      .permit(:attribute, :node, :order)
+      .to_h
+      .symbolize_keys
+  end
+
+  def locate_params
+    params
+      .permit(:attribute, :node, :dataset, :queries)
+      .to_h
+      .symbolize_keys
+  end
+
+  def aggregate_params
+    params
+      .permit(:dataset, :filters, :queries)
+      .to_h
+      .symbolize_keys
+  end
+
+  def dataframe_params
+    params
+      .permit(:dataset, :filters, :annotations, :queries)
+      .to_h
+      .symbolize_keys
+  end
 
   def render_json(body, status: :ok)
     render (params.key?(:pretty) ? :pretty_json : :json) => body, status: status
