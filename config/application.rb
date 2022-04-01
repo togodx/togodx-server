@@ -36,5 +36,7 @@ module TogodxServer
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    config.togodx = YAML.load(ERB.new(File.read(Rails.root.join('config/togodx.yml'))).result).deep_symbolize_keys
   end
 end

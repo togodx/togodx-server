@@ -1,3 +1,6 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  match '/breakdown/:attribute', to: 'application#breakdown', via: [:get, :post]
+  match '/aggregate', to: 'application#aggregate', via: [:get, :post]
+  match '/dataframe', to: 'application#dataframe', via: [:get, :post]
+  match '/locate', to: 'application#locate', via: [:get, :post]
 end

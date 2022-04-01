@@ -1,0 +1,98 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'thor'
+require 'thor/group'
+
+class Init < Thor::Group
+  include Thor::Actions
+
+  source_root File.expand_path('../templates', __dir__)
+
+  desc 'Initialize application'
+
+  def create_database_config
+    input = ask('Select database', default: 'sqlite', limited_to: %w[sqlite postgresql])
+
+    db = case input
+         when 'sqlite'
+           'sqlite3'
+         when 'postgresql'
+           'pg'
+         else
+           raise ''
+         end
+
+    template "database.#{db}.yml.tt", 'config/database.yml'
+  end
+
+  def download_external_lib
+    require 'open-uri'
+    require 'zip'
+
+    ostype = run 'uname -s', verbose: false, capture: true
+    cputype = run 'uname -m', verbose: false, capture: true
+    version = ENV.fetch('NESTED_SET_INDEXER_VERSION') { 'v0.1.0' }
+
+    ostype = case ostype&.chomp!
+             when 'Darwin'
+               'apple-darwin'
+             when 'Linux'
+               'unknown-linux-gnu'
+             else
+               raise "unrecognized OS type: #{ostype}"
+             end
+
+    cputype = case cputype&.chomp!
+              when 'aarch64', 'arm64'
+                'aarch64'
+              when 'x86_64', 'x86-64', 'x64', 'amd64'
+                'x86_64'
+              else
+                raise "unknown CPU type: #{cputype}"
+              end
+
+    url = URI.parse("https://github.com/dsatoh/nested_set_indexer/releases/download/#{version}/nested_set_indexer-#{cputype}-#{ostype}.zip")
+
+    inside 'vendor/bin', verbose: true do
+      remove_file 'nested_set_indexer' if File.exist? 'nested_set_indexer'
+
+      say "Downloading from #{url.to_s}"
+      Zip::File.open_buffer(URI.open(url.to_s)) do |zip|
+        zip.each do |entry|
+          next unless entry.name == 'nested_set_indexer'
+
+          say "Extracting #{entry.name}"
+          entry.extract
+        end
+      end
+
+      chmod 'nested_set_indexer', '+x'
+    end
+  end
+end
+
+class TogoDX < Thor
+  class << self
+    def exit_on_failure?
+      true
+    end
+  end
+
+  Dir.glob(File.expand_path('../lib/tasks/*.thor', __dir__)).each do |f|
+    load f
+  end
+
+  desc 'attribute', 'Commands for attributes'
+  subcommand 'attribute', AttributeTask
+
+  desc 'classification', 'Commands for classifications'
+  subcommand 'classification', ClassificationTask
+
+  desc 'distribution', 'Commands for distributions'
+  subcommand 'distribution', DistributionTask
+
+  register(Init, 'init', 'init', 'Initialize application')
+end
+
+TogoDX.start

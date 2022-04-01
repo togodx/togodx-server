@@ -1,7 +1,7 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-#   Character.create(name: 'Luke', movie: movies.first)
+require 'activerecord-import'
+
+apis = Attribute.all.pluck(:api)
+attributes = YAML.load_file(File.expand_path(File.join('..', 'seeds', 'attributes.yml'), __FILE__))
+                 .reject { |x| apis.include? x['api'] }
+
+Attribute.import attributes

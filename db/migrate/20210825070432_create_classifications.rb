@@ -6,8 +6,8 @@ class CreateClassifications < ActiveRecord::Migration[6.1]
       t.string :classification_parent
       t.boolean :leaf, index: true
       t.integer :parent_id, index: true
-      t.integer :lft, null: false, index: true
-      t.integer :rgt, null: false, index: true
+      t.integer :lft, null: false, default: 0, index: true
+      t.integer :rgt, null: false, default: 0, index: true
       t.integer :count, null: false, default: 0
     end
   end

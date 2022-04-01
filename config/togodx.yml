@@ -1,0 +1,2 @@
+api:
+  prefix: <%= ENV.fetch('TOGODX_API_PREFIX') { 'https://togodx.integbio.jp/sparqlist/api/' } %>

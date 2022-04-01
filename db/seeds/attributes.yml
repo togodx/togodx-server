@@ -1,0 +1,211 @@
+- api: gene_chromosome_ensembl
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: gene_number_of_paralogs_homologene
+  dataset: ncbigene
+  datamodel: classification
+
+- api: gene_evolutionary_conservation_homologene
+  dataset: ncbigene
+  datamodel: classification
+
+- api: gene_high_level_expression_refex
+  dataset: ncbigene
+  datamodel: classification
+
+- api: gene_low_level_expression_refex
+  dataset: ncbigene
+  datamodel: classification
+
+- api: protein_domains_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_cellular_component_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_biological_process_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_molecular_function_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_ligands_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_molecular_mass_uniprot
+  dataset: uniprot
+  datamodel: distribution
+
+- api: protein_ptms_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_number_of_transmembrane_domains_uniprot
+  dataset: uniprot
+  datamodel: distribution
+
+- api: protein_number_of_phosphorylation_sites_uniprot
+  dataset: uniprot
+  datamodel: distribution
+
+- api: protein_number_of_glycosylation_sites_uniprot
+  dataset: uniprot
+  datamodel: distribution
+
+- api: protein_disease_related_proteins_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_isolation_source_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: protein_evidence_of_existence_nextprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: structure_data_existence_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: interaction_chembl_assay_existence_uniprot
+  dataset: uniprot
+  datamodel: classification
+
+- api: interaction_compounds_in_pathway_reactome
+  dataset: chebi
+  datamodel: classification
+
+- api: interaction_number_of_interacting_proteins_uniprot
+  dataset: uniprot
+  datamodel: distribution
+
+- api: interaction_proteins_in_pathway_reactome
+  dataset: uniprot
+  datamodel: classification
+
+- api: compound_action_type_chembl
+  dataset: chembl_compound
+  datamodel: classification
+
+- api: compound_application_type_chebi
+  dataset: chebi
+  datamodel: classification
+
+- api: compound_atc_classification_chembl
+  dataset: chembl_compound
+  datamodel: classification
+
+- api: compound_atc_classification_pubchem
+  dataset: pubchem_compound
+  datamodel: classification
+
+- api: compound_biological_role_chebi
+  dataset: chebi
+  datamodel: classification
+
+- api: compound_chemical_role_chebi
+  dataset: chebi
+  datamodel: classification
+
+- api: compound_drug_development_phase_chembl
+  dataset: chembl_compound
+  datamodel: classification
+
+- api: compound_drug_indication_mesh_chembl
+  dataset: chembl_compound
+  datamodel: classification
+
+- api: disease_diseases_mesh
+  dataset: mesh
+  datamodel: classification
+
+- api: disease_diseases_nando
+  dataset: nando
+  datamodel: classification
+
+- api: glycan_mass_glycosmos
+  dataset: glytoucan
+  datamodel: distribution
+
+- api: glycan_subsumption_glycosmos
+  dataset: glytoucan
+  datamodel: classification
+
+- api: gene_biotype_ensembl
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: gene_high_level_expression_gtex6
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: gene_not_expressed_in_tissues_gtex
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: gene_specific_expression_in_tissues_hpa
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: gene_specific_expression_in_cells_hpa
+  dataset: ensembl_gene
+  datamodel: classification
+
+- api: structure_analysis_methods_pdb
+  dataset: pdb
+  datamodel: classification
+
+- api: structure_crystallization_ph_pdb
+  dataset: pdb
+  datamodel: classification
+
+- api: structure_crystallization_temperature_pdb
+  dataset: pdb
+  datamodel: classification
+
+- api: structure_number_of_alpha_helices_pdb
+  dataset: pdb
+  datamodel: distribution
+
+- api: structure_number_of_beta_sheets_pdb
+  dataset: pdb
+  datamodel: distribution
+
+- api: structure_other_related_molecules_pdb
+  dataset: pdb
+  datamodel: classification
+
+- api: structure_number_of_peptides_pdb
+  dataset: pdb
+  datamodel: distribution
+
+- api: disease_diseases_mondo
+  dataset: mondo
+  datamodel: classification
+
+- api: disease_related_dbs_mondo
+  dataset: mondo
+  datamodel: classification
+
+- api: disease_phenotypic_abnormality_hpo
+  dataset: hp
+  datamodel: classification
+
+- api: variant_gwas_togovar
+  dataset: togovar
+  datamodel: classification
+
+- api: glycan_tissue_glycosmos
+  dataset: glytoucan
+  datamodel: classification
+
+- api: variant_clinical_significance_togovar
+  dataset: togovar
+  datamodel: classification
