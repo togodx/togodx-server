@@ -39,12 +39,7 @@ class GenerateTable < ApplicationInteraction
                                       .grep_v(target)
 
     entry_cache = datasets.map do |key|
-      value = Relation.where(db1: key, db2: target, entry2: queries)
-                      .pluck(:entry2, :entry1)
-                      .group_by { |x| x[0] }
-                      .map { |k, v| [k, v.map { |x| x[1] }] }
-                      .to_h
-
+      value = Relation.from_pair(key, target).table.where(key, target, queries, reverse: true)
       [key, value]
     end.to_h
 
