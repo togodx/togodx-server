@@ -17,5 +17,9 @@ class LocateIdentifiers < ApplicationInteraction
     end
 
     model.locate(queries, node)
+  rescue ApplicationRecord::AttributeNotFound => e
+    errors.add(:attribute, e.message)
+  rescue ApplicationRecord::RelationNotFound => e
+    errors.add(:relation, e.message)
   end
 end

@@ -15,7 +15,7 @@ class FilterIdentifiers < ApplicationInteraction
   end
 
   def execute
-    idsets = filters.select { |filter| filter.has_key?(:nodes) }.map do |filter|
+    sets = filters.select { |filter| filter.has_key?(:nodes) }.map do |filter|
       entries = []
 
       attribute = Attribute.from_api(filter[:attribute])
@@ -35,6 +35,8 @@ class FilterIdentifiers < ApplicationInteraction
     end
 
     # AND (among different attributes)
-    idsets.inject { |sum, n| sum.intersection(n) } || []
+    sets.inject { |sum, n| sum.intersection(n) } || []
+  rescue ApplicationRecord::AttributeNotFound => e
+    errors.add(:attribute, e.message) and return
   end
 end

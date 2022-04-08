@@ -39,6 +39,8 @@ class Relation < ApplicationRecord
       return @from_pair[key] if (@from_pair ||= {}).key?(key)
 
       @from_pair[key] ||= find_by!(source: source, target: target)
+    rescue
+      raise ApplicationRecord::RelationNotFound, "'#{source}' and '#{target}' not found"
     end
 
     def datasets
