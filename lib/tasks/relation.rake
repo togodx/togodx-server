@@ -4,14 +4,50 @@ namespace :relation do
   require 'faraday'
 
   desc 'Load ID mapping to database'
-  task load: :environment do
+  task retrieve_cache: :environment do
     Rails.logger = Logger.new(STDERR)
     ActiveRecord::Base.logger = nil
 
-    pair = Attribute.select(:dataset).distinct.pluck(:dataset).permutation(2).to_a -
-      Relation.select(:db1, :db2).distinct.pluck(:db1, :db2)
+    Relation.datasets.each do |src, dst|
+      Rails.logger.info('Rake') { "Retrieving ID mapping for `#{src}` to `#{dst}`" }
 
-    connection = Faraday.new(url: 'https://integbio.jp') do |builder|
+      time = Benchmark.realtime do
+        ids = Attribute.datasets(src)
+                       .classifications
+                       .flat_map { |attr| attr.table.distinct.where(leaf: true).pluck(:classification) }.uniq
+        Rails.logger.info('Rake') { "  unique identifiers: #{ids.count}" }
+
+        CSV.open("relation_#{src}_#{dst}.csv", 'w') do |csv|
+          csv << %w[source target]
+
+          n = 100
+          ids.each_slice(n).with_index do |g, i|
+            begin
+              response = connection.post('/togosite/sparqlist/api/togoid_route_sparql') do |conn|
+                conn.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+                conn.body = URI.encode_www_form({ source: src, target: dst, ids: g.join(',') })
+              end
+
+              JSON.parse(response.body).each do |hash|
+                csv << [hash['source_id'], hash['target_id']]
+              end
+
+              Rails.logger.info('Rake') { "  #{n * i + g.count}/#{ids.count}" }
+            rescue => e
+              Rails.logger.error('Rake') { "Requested identifiers: #{g.join(',')}" }
+              Rails.logger.error('Rake') { "Error: #{e.respond_to?(:inspect) ? e.inspect : e}" }
+              raise e
+            end
+          end
+        end
+      end
+
+      Rails.logger.info('Rake') { "  retrieve ID mapping: #{'%.3f' % time} sec" }
+    end
+  end
+
+  def connection
+    @connection ||= Faraday.new(url: 'https://integbio.jp') do |builder|
       builder.adapter :net_http_persistent do |http|
         http.idle_timeout = 300
         http.read_timeout = 1.hour
@@ -39,38 +75,6 @@ namespace :relation do
       }
 
       builder.response :raise_error
-    end
-
-    pair.each do |src, dst|
-      next if dst == 'togovar'
-
-      Rails.logger.info('Rake') { "Retrieving ID mapping for `#{src}` to `#{dst}`" }
-
-      time = Benchmark.realtime do
-        ids = Attribute.datasets(src).classifications.flat_map do |attribute|
-          attribute.table.select(:classification).distinct.where(leaf: true).map(&:classification)
-        end.uniq
-        Rails.logger.info('Rake') { "  unique identifiers: #{ids.count}" }
-
-        ActiveRecord::Base.transaction do
-          ids.each_slice(dst == 'togovar' ? 50 : 100) do |g|
-            begin
-              response = connection.post('/togosite/sparqlist/api/togoid_route_sparql') do |conn|
-                conn.headers['Content-Type'] = 'application/x-www-form-urlencoded'
-                conn.body = URI.encode_www_form({ source: src, target: dst, ids: g.join(',') })
-              end
-
-              Relation.import %i[db1 entry1 db2 entry2], JSON.parse(response.body).map { |hash| [src, hash['source_id'], dst, hash['target_id']] }
-            rescue => e
-              Rails.logger.error('Rake') { "Requested identifiers: #{g.join(',')}" }
-              Rails.logger.error('Rake') { "Error: #{e.respond_to?(:inspect) ? e.inspect : e}" }
-              raise e
-            end
-          end
-        end
-      end
-
-      Rails.logger.info('Rake') { "  import ID mapping: #{'%.3f' % time} sec" }
     end
   end
 end

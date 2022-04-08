@@ -70,7 +70,7 @@ Run the following commands to create and setup the database.
 
 ```shell
 $ bundle exec rake db:create
-$ bundle exec rake db:setup
+$ bundle exec rake db:migrate
 ```
 
 
@@ -117,12 +117,14 @@ See example in [protein_molecular_mass_uniprot.json](/example/protein_molecular_
 
 #### Relation
 
-| Name   | Description               |
-|--------|---------------------------|
-| db1    | Dataset of source         |
-| entry1 | Identifier of source      |
-| db2    | Dataset of destination    |
-| entry2 | Identifier of destination |
+This file should be prepared for each pair of dataset names
+
+Execute `rails runner 'p Relation.datasets'` to get pair of dataset names.
+
+| Name   |   Type   | Description          |
+|--------|:--------:|----------------------|
+| source | `String` | Identifier of source |
+| target | `String` | Identifier of target |
 
 ### Import datasets
 
@@ -153,7 +155,9 @@ $ ./bin/togodx distribution import --api protein_molecular_mass_uniprot example/
 #### Relation
 
 ```shell
-$ ./bin/togodx relation import example/relation.csv
+$ ./bin/togodx relation import --source ensembl_gene --target ncbigene example/relation_ensembl_gene_ncbigene.csv
+$ ./bin/togodx relation import --source ensembl_gene --target uniprot example/relation_ensembl_gene_uniprot.csv
+$ ./bin/togodx relation import --source ncbigene --target uniprot example/relation_ncbigene_uniprot.csv
 ```
 
 
@@ -203,7 +207,9 @@ $ docker-compose run --rm app bin/togodx classification import --api gene_high_l
 $ docker-compose run --rm app bin/togodx classification import --api protein_cellular_component_uniprot --dag-to-tree example/protein_cellular_component_uniprot.json
 $ docker-compose run --rm app bin/togodx classification import --api protein_disease_related_proteins_uniprot --dag-to-tree example/protein_disease_related_proteins_uniprot.json
 $ docker-compose run --rm app bin/togodx distribution import --api protein_molecular_mass_uniprot example/protein_molecular_mass_uniprot.json
-$ docker-compose run --rm app bin/togodx relation import example/relation.csv
+$ docker-compose run --rm app bin/togodx relation import --source ensembl_gene --target ncbigene example/relation_ensembl_gene_ncbigene.csv
+$ docker-compose run --rm app bin/togodx relation import --source ensembl_gene --target uniprot example/relation_ensembl_gene_uniprot.csv
+$ docker-compose run --rm app bin/togodx relation import --source ncbigene --target uniprot example/relation_ncbigene_uniprot.csv
 ```
 
 4. Start server
