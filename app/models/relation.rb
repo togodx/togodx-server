@@ -46,6 +46,6 @@ class Relation < ApplicationRecord
   end
 
   def table
-    Object.const_get("Rel#{id}")
+    Object.const_get("Relation#{id}")
   end
 end
