@@ -14,7 +14,7 @@ gem 'sqlite3', '~> 1.4'
 # gem 'redis', '~> 4.0'
 
 # rack / rack middleware
-gem 'puma', '~> 5.0'
+gem 'puma', '~> 5.0', '>= 5.6.4'
 gem 'rack-cors', '~> 1.1'
 
 # http client
