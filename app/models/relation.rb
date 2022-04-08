@@ -1,10 +1,8 @@
 class Relation < ApplicationRecord
-
   module Base
     extend ActiveSupport::Concern
 
     module ClassMethods
-
       # @param [String] source
       # @param [String] target
       # @param [Array<String>] entries
