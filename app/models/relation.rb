@@ -23,14 +23,12 @@ class Relation < ApplicationRecord
       # @param [Hash] options
       # @return [Array<Array<String>>]
       def pairs(source, target, entries, **options)
-        flag = source < target ? 1 : -1
-        flag *= options[:reverse] ? -1 : 1
-        if flag == -1
-          where(entry2: entries)
-            .pluck(:entry2, :entry1)
+        reverse = (source < target ? 1 : -1) * (options[:reverse] ? -1 : 1)
+
+        if reverse
+          where(target: entries).pluck(:target, :source)
         else
-          where(entry1: entries)
-            .pluck(:entry1, :entry2)
+          where(source: entries).pluck(:source, :target)
         end
       end
     end
@@ -38,10 +36,14 @@ class Relation < ApplicationRecord
 
   class << self
     def from_pair(source, target)
-      pair = source < target ? "#{source}-#{target}" : "#{target}-#{source}"
-      return @from_pair[pair] if (@from_pair ||= {})[pair].present?
+      key = [source, target].sort.join('-')
+      return @from_pair[key] if (@from_pair ||= {}).key?(key)
 
-      @from_pair[pair] ||= find_by!(pair: pair)
+      @from_pair[key] ||= find_by!(source: source, target: target)
+    end
+
+    def datasets
+      Attribute.distinct.pluck(:dataset).permutation(2).filter { |src, dst| src < dst }
     end
   end
 
