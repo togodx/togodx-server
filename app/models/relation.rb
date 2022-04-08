@@ -21,7 +21,8 @@ class Relation < ApplicationRecord
       # @param [Hash] options
       # @return [Array<Array<String>>]
       def pairs(source, target, entries, **options)
-        reverse = (source < target ? 1 : -1) * (options[:reverse] ? -1 : 1)
+        reverse = target < source
+        reverse = !reverse if options[:reverse]
 
         if reverse
           where(target: entries).pluck(:target, :source)
