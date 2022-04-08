@@ -1,4 +1,4 @@
-class DataFrame
+class DataFrame < Array
   attr_reader :target
   attr_reader :queries
 
@@ -12,9 +12,13 @@ class DataFrame
     @columns = columns.map(&:symbolize_keys)
     @columns_cache = {}
     @entry_cache = {}
+
+    concat data
   end
 
-  def to_json
+  private
+
+  def data
     @queries.map do |query|
       {
         index: {
@@ -40,8 +44,6 @@ class DataFrame
       }
     end
   end
-
-  private
 
   def labels
     return @labels if @labels

@@ -73,11 +73,10 @@ class Classification < ApplicationRecord
 
     # @return [Hash]
     def count_breakdown
-      count = descendants.where(leaf: true).distinct.count(:classification)
       {
         node: classification,
         label: classification_label,
-        count: count,
+        count: (count = descendants.where(leaf: true).distinct.count(:classification)),
         tip: (children_without_leaf.count.zero? || count.zero?)
       }
     end
