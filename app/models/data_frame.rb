@@ -68,7 +68,9 @@ class DataFrame
     entries = if @target == dataset
                 @queries.map { |x| [x, [x]] }.to_h
               else
-                @entry_cache[dataset] ||= Relation.from_pair(dataset, @target).table.convert(dataset, @target, @queries, reverse: true)
+                @entry_cache[dataset] ||= Relation.from_pair(dataset, @target)
+                                                  .table
+                                                  .convert(dataset, @target, @queries, reverse: true)
               end
 
     attributes = model
