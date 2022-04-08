@@ -8,10 +8,10 @@ class CountBreakdown < ApplicationInteraction
       attr = Attribute.from_api(attribute)
       attr.table.breakdown(node, order)
     end
-  rescue ActiveRecord::RecordNotFound
-    errors.add(:attribute, 'does not exist')
+  rescue ApplicationRecord::AttributeNotFound => e
+    errors.add(:attribute, e.message)
   rescue ArgumentError => e
-    errors.add(:order, 'is invalid')
+    errors.add(:order, "'#{order}' is invalid")
   end
 
   private

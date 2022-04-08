@@ -27,6 +27,8 @@ class Attribute < ApplicationRecord
       return @from_api[api] if (@from_api ||= {})[api].present?
 
       @from_api[api] ||= find_by!(api: api)
+    rescue
+      raise ApplicationRecord::AttributeNotFound, "'#{api}' not found"
     end
   end
 

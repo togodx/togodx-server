@@ -1,6 +1,10 @@
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 
+  # Errors
+  class AttributeNotFound < ActiveRecord::RecordNotFound; end
+  class RelationNotFound < ActiveRecord::RecordNotFound; end
+
   class << self
     def truncate_table
       sql = case ActiveRecord::Base.connection.adapter_name

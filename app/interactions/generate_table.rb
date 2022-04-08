@@ -30,5 +30,9 @@ class GenerateTable < ApplicationInteraction
     end
 
     DataFrame.new(target, queries, filters + annotations)
+  rescue ApplicationRecord::AttributeNotFound => e
+    errors.add(:attribute, e.message)
+  rescue ApplicationRecord::RelationNotFound => e
+    errors.add(:relation, e.message)
   end
 end

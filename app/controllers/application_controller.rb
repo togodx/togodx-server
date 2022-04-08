@@ -4,7 +4,11 @@ class ApplicationController < ActionController::API
   def breakdown
     breakdown = CountBreakdown.run(breakdown_params)
 
-    render_json breakdown.result, status: breakdown.valid? ? :ok : :bad_request
+    if breakdown.valid?
+      render_json breakdown.result
+    else
+      render_json({ errors: breakdown.errors.full_messages }, status: :bad_request)
+    end
   end
 
   # GET /locate
@@ -17,7 +21,11 @@ class ApplicationController < ActionController::API
                                      queries: JSON.parse(params[:queries] || '[]'),
                                      node: params[:node].presence)
 
-    render_json location.result, status: location.valid? ? :ok : :bad_request
+    if location.valid?
+      render_json location.result
+    else
+      render_json({ errors: location.errors.full_messages }, status: :bad_request)
+    end
   end
 
   # GET /aggregate
@@ -29,7 +37,11 @@ class ApplicationController < ActionController::API
                                       filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
                                       queries: JSON.parse(params[:queries] || '[]'))
 
-    render_json aggregate.result, status: aggregate.valid? ? :ok : :bad_request
+    if aggregate.valid?
+      render_json aggregate.result
+    else
+      render_json({ errors: aggregate.errors.full_messages }, status: :bad_request)
+    end
   end
 
   # GET /dataframe
@@ -42,7 +54,11 @@ class ApplicationController < ActionController::API
                                   filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
                                   annotations: JSON.parse(params[:annotations] || '[]').map(&:symbolize_keys))
 
-    render_json dataframe.result.to_json, status: dataframe.valid? ? :ok : :bad_request
+    if dataframe.valid?
+      render_json dataframe.result
+    else
+      render_json({ errors: dataframe.errors.full_messages }, status: :bad_request)
+    end
   end
 
   private
