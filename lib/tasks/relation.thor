@@ -71,6 +71,7 @@ class RelationTask < Thor
 
     def create_table
       relation = Relation.create!(source: options[:source], target: options[:target])
+      reverse = Relation.create!(source: options[:target], target: options[:source])
 
       schema = File.read(Rails.root.join('db', 'schema.rb'))
       m = schema.match(/^\s*create_table "relation".*?end$/m)
@@ -80,6 +81,12 @@ class RelationTask < Thor
       ActiveRecord::Migration.class_eval do
         eval m[0].gsub('relation', table_name)
       end
+
+      ActiveRecord::Base.connection.execute <<~SQL
+        CREATE VIEW IF NOT EXISTS "relation#{reverse.id}" AS
+        SELECT "id", "target" AS "source", "source" AS "target"
+        FROM "#{table_name}";
+      SQL
 
       klass = Class.new(ApplicationRecord) do
         include Relation::Base

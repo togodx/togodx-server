@@ -28,7 +28,7 @@ class FilterIdentifiers < ApplicationInteraction
       end
 
       if source != target
-        entries = Relation.from_pair(source, target).table.pairs(source, target, entries).map { |x| x[1] }
+        entries = Relation.from_pair(source, target).table.pairs(entries).map { |x| x[1] }
       end
 
       queries.present? ? entries.uniq & queries : entries.uniq
