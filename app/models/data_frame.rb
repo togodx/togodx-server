@@ -72,7 +72,7 @@ class DataFrame < Array
               else
                 @entry_cache[dataset] ||= Relation.from_pair(dataset, @target)
                                                   .table
-                                                  .convert(dataset, @target, @queries, reverse: true)
+                                                  .convert(@queries, reverse: true)
               end
 
     attributes = model
