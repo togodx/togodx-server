@@ -92,6 +92,9 @@ class TogoDX < Thor
   desc 'distribution', 'Commands for distributions'
   subcommand 'distribution', DistributionTask
 
+  desc 'relation', 'Commands for relations'
+  subcommand 'relation', RelationTask
+
   register(Init, 'init', 'init', 'Initialize application')
 end
 
