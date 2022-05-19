@@ -62,7 +62,7 @@ class Distribution < ApplicationRecord
       end
 
       def default_categories
-        all.map(&:distribution)
+        distinct(:bin_id).order(:bin_id).pluck(:bin_id)
       end
 
       def sub_categories
