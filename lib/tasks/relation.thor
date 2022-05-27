@@ -82,11 +82,22 @@ class RelationTask < Thor
         eval m[0].gsub('relation', table_name)
       end
 
-      ActiveRecord::Base.connection.execute <<~SQL
-        CREATE VIEW IF NOT EXISTS "relation#{reverse.id}" AS
-        SELECT "id", "target" AS "source", "source" AS "target"
-        FROM "#{table_name}";
-      SQL
+      case ActiveRecord::Base.connection.adapter_name
+      when 'PostgreSQL'
+        ActiveRecord::Base.connection.execute <<~SQL
+          CREATE OR REPLACE VIEW "relation#{reverse.id}" AS
+          SELECT "id", "target" AS "source", "source" AS "target"
+          FROM "#{table_name}";
+        SQL
+      when 'SQLite'
+        ActiveRecord::Base.connection.execute <<~SQL
+          CREATE VIEW IF NOT EXISTS "relation#{reverse.id}" AS
+          SELECT "id", "target" AS "source", "source" AS "target"
+          FROM "#{table_name}";
+        SQL
+      else
+        raise RuntimeError, 'Unsupported database adapter.'
+      end
 
       klass = Class.new(ApplicationRecord) do
         include Relation::Base
