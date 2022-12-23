@@ -1,12 +1,13 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.0.2'
+ruby '3.1.0'
 
 gem 'rails', '~> 6.1.3', '>= 6.1.3.2'
 
 # application cache
 gem 'bootsnap', '>= 1.4.4', require: false
+gem 'matrix', '~> 0.4.2'
 
 # database
 gem 'pg', '~> 1.2'
@@ -18,8 +19,7 @@ gem 'puma', '~> 5.0'
 gem 'rack-cors', '~> 1.1'
 
 # http client
-gem 'faraday', '~> 1.7'
-gem 'net-http-persistent', '~> 4.0'
+gem 'faraday', '~> 2.7'
 
 # extension
 gem 'active_interaction', '~> 4.0'
