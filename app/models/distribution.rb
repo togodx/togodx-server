@@ -76,7 +76,7 @@ class Distribution < ApplicationRecord
       end
 
       def suggest(_term)
-        []
+        {}
       end
     end
   end
