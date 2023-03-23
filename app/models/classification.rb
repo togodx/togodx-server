@@ -7,9 +7,20 @@ class Classification < ApplicationRecord
     include Breakdown
 
     module ClassMethods
-      # @return [Array<Hash>]
-      def breakdown(node = nil, mode = nil)
-        (node ? find_by(classification: node) : root)&.breakdown(mode) || []
+      # @return [Array<Hash>, Hash]
+      def breakdown(node = nil, mode = nil, **options)
+        classification = node ? find_by(classification: node) : root
+        children = classification&.breakdown(mode) || []
+
+        if options[:hierarchy]
+          {
+            self: classification&.count_breakdown,
+            parents: classification&.root? ? nil : classification&.parents,
+            children:
+          }
+        else
+          children
+        end
       end
 
       # @return [Array<String>] list of classification (leaves' ID)
@@ -107,6 +118,16 @@ class Classification < ApplicationRecord
           pvalue: Stat.pvalue(count_total, count_subtotal, count_queries, count_hits)
         }
       end
+    end
+
+    def parents
+      base = classification.match?(/-\d+$/) ? classification.match(/(.*)-\d+$/).captures.first : classification
+
+      nodes = [self].concat(self.class.where(%Q["#{self.class.table_name}"."classification" LIKE ?], "#{base}-%"))
+      # nodes = [self] # TODO: simplify if the attribute is non-dag tree for better performance
+
+      nodes.map(&:parent)
+           .map(&:count_breakdown)
     end
   end
 end

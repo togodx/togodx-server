@@ -65,9 +65,10 @@ class ApplicationController < ActionController::API
 
   def breakdown_params
     params
-      .permit(:attribute, :node, :order)
+      .permit(:attribute, :hierarchy, :node, :order)
       .to_h
       .symbolize_keys
+      .tap { |hash| hash.merge!(hierarchy: hash.key?(:hierarchy)) }
   end
 
   def locate_params

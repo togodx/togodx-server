@@ -70,7 +70,7 @@ class Dag
   def copy_sub_graph(parent_id, new_parent_id)
     @childs[parent_id].each do |id|
       new_child_id = id
-      id = (m = id.match(/(.+)-\d+$/)) ? m.captures[0] : id
+      id = (m = id.match(/(.+)-\d+$/)) ? m.captures[0] : id # TODO: Ensure that - is not used in the id
 
       unless @leaves[id]
         @indices[id] += 1
