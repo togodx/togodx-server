@@ -74,6 +74,10 @@ class Distribution < ApplicationRecord
           .where(distribution: queries)
           .distinct
       end
+
+      def suggest(_term)
+        []
+      end
     end
   end
 end

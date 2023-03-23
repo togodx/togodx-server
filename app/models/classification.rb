@@ -65,6 +65,26 @@ class Classification < ApplicationRecord
           .where(classification: queries)
           .distinct
       end
+
+      SUGGEST_RESULT_MAX = 10
+
+      def suggest(term)
+        op = case ActiveRecord::Base.connection_db_config.adapter
+             when 'postgresql'
+               'ILIKE'
+             else
+               'LIKE'
+             end
+
+        result = where(%Q["#{table_name}"."classification_label" #{op} ?], "%#{term}%")
+                   .order(%Q[LOWER("#{table_name}"."classification_label")])
+                   .reject { |x| x.classification.match?(/-\d+$/) } # TODO: update the DAG determination method
+
+        {
+          results: result.take(SUGGEST_RESULT_MAX).map { |x| { node: x.classification, label: x.classification_label } },
+          total: result.size
+        }
+      end
     end
 
     # @return [Array<Hash>]
@@ -121,6 +141,7 @@ class Classification < ApplicationRecord
     end
 
     def parents
+      # TODO: update the DAG determination method
       base = classification.match?(/-\d+$/) ? classification.match(/(.*)-\d+$/).captures.first : classification
 
       nodes = [self].concat(self.class.where(%Q["#{self.class.table_name}"."classification" LIKE ?], "#{base}-%"))

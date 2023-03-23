@@ -11,6 +11,19 @@ class ApplicationController < ActionController::API
     end
   end
 
+  # GET /suggest/:attribute
+  # POST /suggest/:attribute
+  def suggest
+    suggest = SuggestTerm.run(suggest_params)
+
+    if suggest.valid?
+      render_json suggest.result
+    else
+      render_json({ errors: suggest.errors.full_messages }, status: :bad_request)
+    end
+  end
+
+
   # GET /locate
   # POST /locate
   def locate
@@ -69,6 +82,13 @@ class ApplicationController < ActionController::API
       .to_h
       .symbolize_keys
       .tap { |hash| hash.merge!(hierarchy: hash.key?(:hierarchy)) }
+  end
+
+  def suggest_params
+    params
+      .permit(:attribute, :term)
+      .to_h
+      .symbolize_keys
   end
 
   def locate_params
