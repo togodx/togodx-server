@@ -81,7 +81,7 @@ class ApplicationController < ActionController::API
       .permit(:attribute, :hierarchy, :node, :order)
       .to_h
       .symbolize_keys
-      .tap { |hash| hash.merge!(hierarchy: hash.key?(:hierarchy)) }
+      .tap { |hash| hash.merge!(hierarchy: hash.key?(:hierarchy) && hash[:hierarchy] != false) }
   end
 
   def suggest_params
