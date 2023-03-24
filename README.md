@@ -349,7 +349,7 @@ Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pre
 
 ### Locate
 
-### `POST` /suggest/{attribute}
+### `POST` /locate/{attribute}
 
 #### Path parameter
 
