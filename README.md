@@ -219,3 +219,293 @@ $ docker-compose up -d
 ```
 
 Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pretty`
+
+## API
+
+### `GET` `POST` /breakdown/{attribute}
+
+#### Path parameter
+
+| parameter | type   | required | description    |
+|-----------|--------|----------|----------------|
+| attribute | String | Yes      | attribute name |
+
+#### Query parameter `GET` / Request body `POST`
+
+| parameter | type   | required | description                                                                                                         |
+|-----------|--------|----------|---------------------------------------------------------------------------------------------------------------------|
+| node      | String | No       | if not set, it is assumed to be the root node                                                                       |
+| hierarchy | Flag   | No       | if set, return parents and children of the node                                                                     |
+| order     | String | No       | `id_asc`&#124;`id_desc`&#124;`numerical_asc`&#124;`numerical_desc`&#124;`alphabetical_asc`&#124;`alphabetical_desc` |
+
+<small>Remember to set request header `Content-Type: application/json` for `POST`</small>
+
+#### Response
+
+* hierarchy = `false`
+
+  ```json
+  [
+    {
+      "node": "node_1",
+      "label": "label 1",
+      "count": 10,
+      "tip": true
+    },
+    {
+      "node": "node_2",
+      "label": "label 2",
+      "count": 20,
+      "tip": false
+    },
+    .
+    .
+    .
+  ]
+  ```
+
+* hierarchy = `true`
+
+  ```json
+  {
+    "self": {
+      "node": "node_3",
+      "label": "label 3",
+      "count": 30,
+      "tip": false
+    },
+    "parents": [
+      {
+        "node": "node_4",
+        "label": "label 4",
+        "count": 40,
+        "tip": false
+      },
+      {
+        "node": "node_5",
+        "label": "label 5",
+        "count": 50,
+        "tip": false
+      }
+    ],
+    "children": [
+      {
+        "node": "node_1",
+        "label": "label 1",
+        "count": 10,
+        "tip": true
+      },
+      {
+        "node": "node_2",
+        "label": "label 2",
+        "count": 20,
+        "tip": false
+      },
+      .
+      .
+      .
+    ]
+  }
+  ```
+
+### Suggest
+
+### `GET` `POST` /suggest/{attribute}
+
+#### Path parameter
+
+| parameter | type   | required | description    |
+|-----------|--------|----------|----------------|
+| attribute | String | Yes      | attribute name |
+
+#### Query parameter `GET` / Request body `POST`
+
+| parameter | type   | required | description                          |
+|-----------|--------|----------|--------------------------------------|
+| term      | String | Yes      | query string (at least 3 characters) |
+
+<small>Remember to set request header `Content-Type: application/json` for `POST`</small>
+
+#### Response
+
+```json
+{
+  "results": [
+    {
+      "node": "ndoe_1",
+      "label": "label 1"
+    },
+    {
+      "node": "ndoe_2",
+      "label": "label 2"
+    },
+    .
+    .
+    .
+  ],
+  "total": 100
+}
+```
+
+### Locate
+
+### `POST` /suggest/{attribute}
+
+#### Path parameter
+
+| parameter | type   | required | description    |
+|-----------|--------|----------|----------------|
+| attribute | String | Yes      | attribute name |
+
+#### Request body
+
+| parameter | type                | required | description                                   |
+|-----------|---------------------|----------|-----------------------------------------------|
+| dataset   | String              | Yes      | target dataset name                           |
+| queries   | Array&lt;String&gt; | Yes      | list of nodes                                 |
+| node      | String              | No       | if not set, it is assumed to be the root node |
+
+<small>Remember to set request header `Content-Type: application/json`</small>
+
+#### Response
+
+```json
+[
+  {
+    "node": "node_1",
+    "label": "label 1",
+    "count": 100,
+    "mapped": 0,
+    "pvalue": null
+  },
+  {
+    "node": "node_2",
+    "label": "label 2",
+    "count": 200,
+    "mapped": 1,
+    "pvalue": 0.12345
+  },
+  .
+  .
+  .
+]
+```
+
+### Aggregate
+
+### `POST` /aggregate
+
+#### Request body
+
+| parameter | type                | required | description                 |
+|-----------|---------------------|----------|-----------------------------|
+| dataset   | String              | Yes      | target dataset name         |
+| filters   | Array&lt;Object&gt; | Yes      | list of filters (see below) |
+
+* Object structure of a `filter`
+
+  ```json
+  {
+    "attribute": "attribute_1",
+    "nodes": [
+      "node_1",
+      "node_1",
+      .
+      .
+      .
+    ]
+  }
+  ```
+
+<small>Remember to set request header `Content-Type: application/json`</small>
+
+#### Response
+
+```json
+[
+  "id_1",
+  "id_2",
+  .
+  .
+  .
+]
+```
+
+### Dataframe
+
+### `POST` /dataframe
+
+#### Request body
+
+| parameter   | type                | required | description                     |
+|-------------|---------------------|----------|---------------------------------|
+| dataset     | String              | Yes      | target dataset name             |
+| filters     | Array&lt;Object&gt; | Yes      | list of filters (see below)     |
+| annotations | Array&lt;Object&gt; | No       | list of annotations (see below) |
+| queries     | Array&lt;String&gt; | Yes      | list of queries                 |
+
+* Object structure of a `filter`
+
+  ```json
+  {
+    "attribute": "attribute_1",
+    "nodes": [
+      "node_1",
+      "node_2",
+      .
+      .
+      .
+    ]
+  }
+  ```
+
+* Object structure of a `annotation`
+
+  ```json
+  [
+    {
+      "attribute": "attribute_1"
+    },
+    {
+      "attribute": "attribute_1"
+    },
+    .
+    .
+    .
+  ]
+  ```
+
+<small>Remember to set request header `Content-Type: application/json`</small>
+
+#### Response
+
+```json
+[
+  {
+    "index": {
+      "dataset": "dataset_1",
+      "entry": "node_1",
+      "label": "label 1"
+    },
+    "attributes": [
+      {
+        "id": "attribute_1",
+        "items": [
+          {
+            "dataset": "dataset_2",
+            "entry": "node_1",
+            "node": "node_2",
+            "label": "label 2"
+          }
+        ]
+      },
+      .
+      .
+      .
+    ]
+  },
+  .
+  .
+  .
+]
+```
