@@ -244,7 +244,7 @@ Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pre
 
 * hierarchy = `false`
 
-  ```json
+  ```
   [
     {
       "node": "node_1",
@@ -266,7 +266,7 @@ Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pre
 
 * hierarchy = `true`
 
-  ```json
+  ```
   {
     "self": {
       "node": "node_3",
@@ -328,7 +328,7 @@ Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pre
 
 #### Response
 
-```json
+```
 {
   "results": [
     {
@@ -369,7 +369,7 @@ Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pre
 
 #### Response
 
-```json
+```
 [
   {
     "node": "node_1",
@@ -404,7 +404,7 @@ Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pre
 
 * Object structure of a `filter`
 
-  ```json
+  ```
   {
     "attribute": "attribute_1",
     "nodes": [
@@ -421,7 +421,7 @@ Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pre
 
 #### Response
 
-```json
+```
 [
   "id_1",
   "id_2",
@@ -446,7 +446,7 @@ Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pre
 
 * Object structure of a `filter`
 
-  ```json
+  ```
   {
     "attribute": "attribute_1",
     "nodes": [
@@ -461,7 +461,7 @@ Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pre
 
 * Object structure of a `annotation`
 
-  ```json
+  ```
   [
     {
       "attribute": "attribute_1"
@@ -479,7 +479,7 @@ Then visit to `http://localhost:<APP_PORT>/breakdown/gene_chromosome_ensembl?pre
 
 #### Response
 
-```json
+```
 [
   {
     "index": {
