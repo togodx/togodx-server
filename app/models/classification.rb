@@ -14,7 +14,7 @@ class Classification < ApplicationRecord
 
       # @return [Array<Hash>, Hash]
       def breakdown(node, mode = 'numerical_desc', **options)
-        classification = find_by!(classification: node || root)
+        classification = find_by!(classification: node || root.classification)
 
         children = classification.child_nodes_excluding_no_leaves
                                  .map { |child| child.breakdown }
@@ -35,8 +35,7 @@ class Classification < ApplicationRecord
 
       # @return [Array<Hash>, Hash]
       def locate(queries, node = nil, **options)
-        puts "options: #{options}"
-        classification = find_by!(classification: node || root)
+        classification = find_by!(classification: node || root.classification)
 
         count_total = where(leaf: true).distinct.count(:classification)
         count_queries = where(leaf: true).where(classification: queries).distinct.count(:classification)
