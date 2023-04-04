@@ -7,15 +7,25 @@ class Classification < ApplicationRecord
     include Breakdown
 
     module ClassMethods
+      # @return [Array<String>] list of classification (leaves' ID)
+      def entries(node = nil)
+        find_by!(classification: node || root).classification.entries
+      end
+
       # @return [Array<Hash>, Hash]
-      def breakdown(node = nil, mode = nil, **options)
-        classification = node ? find_by(classification: node) : root
-        children = classification&.breakdown(mode) || []
+      def breakdown(node, mode = 'numerical_desc', **options)
+        classification = find_by!(classification: node || root)
+
+        children = classification.child_nodes_excluding_no_leaves
+                                 .map { |child| child.breakdown }
+                                 .reject { |x| x[:count].zero? }
+
+        children = sort_breakdown(children, mode)
 
         if options[:hierarchy]
           {
-            self: classification&.count_breakdown,
-            parents: classification&.root? ? nil : classification&.parents,
+            self: classification.breakdown,
+            parents: classification.root? ? nil : sort_breakdown(classification.parents.map(&:breakdown), mode),
             children:
           }
         else
@@ -23,16 +33,34 @@ class Classification < ApplicationRecord
         end
       end
 
-      # @return [Array<String>] list of classification (leaves' ID)
-      def entries(node = nil)
-        (node ? find_by(classification: node) : root)&.entries || []
+      # @return [Array<Hash>, Hash]
+      def locate(queries, node = nil, **options)
+        puts "options: #{options}"
+        classification = find_by!(classification: node || root)
+
+        count_total = where(leaf: true).distinct.count(:classification)
+        count_queries = where(leaf: true).where(classification: queries).distinct.count(:classification)
+
+        children = classification.child_nodes_excluding_no_leaves
+                                 .map { |child| child.locate(queries, count_total, count_queries) }
+
+        if options[:hierarchy]
+          {
+            self: classification.locate(queries, count_total, count_queries),
+            parents: classification.root? ? nil : classification.parents.map { |x| x.locate(queries, count_total, count_queries) },
+            children:
+          }
+        else
+          children
+        end
       end
 
       # @param [Object] nodes Identifiers
       # @param [Object] conditions Selected nodes
       def labels(nodes, conditions)
-        where(classification: conditions).map { |node| [node, node.descendants.where(leaf: true, classification: nodes)] }
-                                         .map do |node, leaves|
+        nodes = where(classification: conditions).map { |node| [node, node.descendants.where(leaf: true, classification: nodes)] }
+
+        nodes.map do |node, leaves|
           leaves.pluck(:classification).uniq.map do |classification|
             {
               id: classification,
@@ -41,10 +69,6 @@ class Classification < ApplicationRecord
             }
           end
         end.flatten
-      end
-
-      def locate(queries, node = nil)
-        (node ? find_by(classification: node) : root)&.locate(queries) || []
       end
 
       # TODO: frontend should pass default categories
@@ -87,57 +111,34 @@ class Classification < ApplicationRecord
       end
     end
 
-    # @return [Array<Hash>]
-    def breakdown(mode = nil)
-      list = children_without_leaf
-               .map { |child| child.count_breakdown }
-               .reject { |x| x[:count].zero? }
-
-      mode ||= 'numerical_desc'
-      self.class.sort_breakdown(list, mode)
-    end
-
-    # @return [ActiveRecord::Relation<Classification>]
-    def children_without_leaf
-      self.children.where(leaf: false)
+    # @return [Array<String>] list of classification (leaves' ID)
+    def entries
+      descendant_leaves.pluck(:classification)
     end
 
     # @return [Hash]
-    def count_breakdown
+    def breakdown
       {
         node: classification,
         label: classification_label,
-        count: (count = descendants.where(leaf: true).distinct.count(:classification)),
-        tip: (children_without_leaf.count.zero? || count.zero?)
+        count: descendant_leaves.distinct.count(:classification),
+        tip: tip?
       }
     end
 
-    # @return [Array<String>] list of classification (leaves' ID)
-    def entries
-      descendants
-        .where(leaf: true)
-        .map(&:classification)
-    end
+    # @return [Hash]
+    def locate(queries, count_total, count_queries)
+      leaves = descendant_leaves.distinct.unscope(:order).pluck(:classification)
+      count_subtotal = leaves.count
+      count_hits = (queries & leaves).count
 
-    def locate(queries)
-      leaves = self.class.where(leaf: true)
-
-      count_total = leaves.distinct.count(:classification)
-      count_queries = leaves.where(classification: queries).distinct.count(:classification)
-
-      children_without_leaf.map do |child|
-        leaves = child.descendants.where(leaf: true).distinct.unscope(:order).pluck(:classification)
-        count_subtotal = leaves.count
-        count_hits = (queries & leaves).count
-
-        {
-          node: child.classification,
-          label: child.classification_label,
-          count: count_subtotal,
-          mapped: count_hits,
-          pvalue: Stat.pvalue(count_total, count_subtotal, count_queries, count_hits)
-        }
-      end
+      {
+        node: classification,
+        label: classification_label,
+        count: count_subtotal,
+        mapped: count_hits,
+        pvalue: Stat.pvalue(count_total, count_subtotal, count_queries, count_hits)
+      }
     end
 
     def parents
@@ -147,8 +148,29 @@ class Classification < ApplicationRecord
       nodes = [self].concat(self.class.where(%Q["#{self.class.table_name}"."classification" LIKE ?], "#{base}-%"))
       # nodes = [self] # TODO: simplify if the attribute is non-dag tree for better performance
 
-      nodes.map(&:parent)
-           .map(&:count_breakdown)
+      nodes.map(&:parent).reject { |x| x.classification.match(/(.*)-\d+$/) }
+    end
+
+    # @return [ActiveRecord::Relation<Classification>]
+    def children_without_leaf
+      children.where(leaf: false)
+    end
+
+    # @return [ActiveRecord::Relation<Classification>]
+    def descendant_leaves
+      descendants.where(leaf: true)
+    end
+
+    def children_excluding_no_leaves
+      children.reject { |x| !x.leaf && x.descendant_leaves.count(:classification).zero? }
+    end
+
+    def child_nodes_excluding_no_leaves
+      children_without_leaf.reject { |x| !x.leaf && x.descendant_leaves.count(:classification).zero? }
+    end
+
+    def tip?
+      children_excluding_no_leaves.all?(&:leaf)
     end
   end
 end
