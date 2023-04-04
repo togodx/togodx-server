@@ -23,7 +23,6 @@ class ApplicationController < ActionController::API
     end
   end
 
-
   # GET /locate
   # POST /locate
   def locate
@@ -32,7 +31,8 @@ class ApplicationController < ActionController::API
     location = LocateIdentifiers.run(attribute: params[:attribute],
                                      source: params[:dataset],
                                      queries: JSON.parse(params[:queries] || '[]'),
-                                     node: params[:node].presence)
+                                     node: params[:node].presence,
+                                     hierarchy: params[:hierarchy])
 
     if location.valid?
       render_json location.result
@@ -93,9 +93,10 @@ class ApplicationController < ActionController::API
 
   def locate_params
     params
-      .permit(:attribute, :node, :dataset, :queries)
+      .permit(:attribute, :hierarchy, :node, :dataset, :queries)
       .to_h
       .symbolize_keys
+      .tap { |hash| hash.merge!(hierarchy: hash.key?(:hierarchy) && hash[:hierarchy] != false) }
   end
 
   def aggregate_params
