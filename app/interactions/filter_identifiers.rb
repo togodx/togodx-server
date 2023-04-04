@@ -25,6 +25,8 @@ class FilterIdentifiers < ApplicationInteraction
       filter[:nodes].each do |condition|
         # OR (within a same attribute)
         entries += model.entries(condition)
+      rescue ActiveRecord::RecordNotFound
+        nil
       end
 
       if source != target

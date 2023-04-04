@@ -11,7 +11,9 @@ class CountBreakdown < ApplicationInteraction
     end
   rescue ApplicationRecord::AttributeNotFound => e
     errors.add(:attribute, e.message)
-  rescue ArgumentError => e
+  rescue ActiveRecord::RecordNotFound
+    errors.add(:node, "'#{node}' were not found")
+  rescue ArgumentError
     errors.add(:order, "'#{order}' is invalid")
   end
 
