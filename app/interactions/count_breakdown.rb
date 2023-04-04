@@ -7,7 +7,7 @@ class CountBreakdown < ApplicationInteraction
   def execute
     Rails.cache.fetch(cache_key) do
       attr = Attribute.from_api(attribute)
-      attr.table.breakdown(node, order, hierarchy:)
+      attr.table.breakdown(node.presence, order.presence, hierarchy:)
     end
   rescue ApplicationRecord::AttributeNotFound => e
     errors.add(:attribute, e.message)
