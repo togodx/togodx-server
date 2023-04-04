@@ -6,7 +6,7 @@ class Distribution < ApplicationRecord
 
     module ClassMethods
       # @return [Array<Hash>]
-      def breakdown(_node = nil, mode = nil, **options)
+      def breakdown(_node = nil, mode = nil, **_options)
         mode ||= 'id_asc'
         sort_breakdown(histogram, mode).map { |hash| hash.merge(node: hash[:node].to_s) }
       end
@@ -38,7 +38,7 @@ class Distribution < ApplicationRecord
         end
       end
 
-      def locate(queries, node = nil)
+      def locate(queries, _node = nil, **_options)
         count_total = count
         count_queries = where(distribution: queries).count
 
