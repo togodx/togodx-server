@@ -9,7 +9,7 @@ class Classification < ApplicationRecord
     module ClassMethods
       # @return [Array<String>] list of classification (leaves' ID)
       def entries(node = nil)
-        find_by!(classification: node.presence || root.classification).classification.entries
+        find_by!(classification: node.presence || root.classification).entries
       end
 
       # @return [Array<Hash>, Hash]
