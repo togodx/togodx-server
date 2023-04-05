@@ -17,7 +17,7 @@ class LocateIdentifiers < ApplicationInteraction
       queries = Relation.from_pair(source, target).table.convert(queries).values.flatten.uniq
     end
 
-    model.locate(queries.presence || [], node.presence, hierarchy:)
+    model.locate(queries || [], node, hierarchy:)
   rescue ApplicationRecord::AttributeNotFound => e
     errors.add(:attribute, e.message)
   rescue ActiveRecord::RecordNotFound

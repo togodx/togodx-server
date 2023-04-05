@@ -9,12 +9,12 @@ class Classification < ApplicationRecord
     module ClassMethods
       # @return [Array<String>] list of classification (leaves' ID)
       def entries(node = nil)
-        find_by!(classification: node || root).classification.entries
+        find_by!(classification: node.presence || root.classification).classification.entries
       end
 
       # @return [Array<Hash>, Hash]
       def breakdown(node, mode = 'numerical_desc', **options)
-        classification = find_by!(classification: node || root.classification)
+        classification = find_by!(classification: node.presence || root.classification)
 
         children = classification.child_nodes_excluding_no_leaves
                                  .map { |child| child.breakdown }
@@ -35,7 +35,7 @@ class Classification < ApplicationRecord
 
       # @return [Array<Hash>, Hash]
       def locate(queries, node = nil, **options)
-        classification = find_by!(classification: node || root.classification)
+        classification = find_by!(classification: node.presence || root.classification)
 
         count_total = where(leaf: true).distinct.count(:classification)
         count_queries = where(leaf: true).where(classification: queries).distinct.count(:classification)
