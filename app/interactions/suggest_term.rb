@@ -5,7 +5,7 @@ class SuggestTerm < ApplicationInteraction
   validates :term, length: { minimum: 3 }
 
   def execute
-    attr = Attribute.from_api(attribute)
+    attr = Attribute.from_key(attribute)
     attr.table.suggest(term)
   end
 end

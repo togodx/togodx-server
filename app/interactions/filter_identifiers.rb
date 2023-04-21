@@ -18,7 +18,7 @@ class FilterIdentifiers < ApplicationInteraction
     sets = filters.select { |filter| filter.has_key?(:nodes) }.map do |filter|
       entries = []
 
-      attribute = Attribute.from_api(filter[:attribute])
+      attribute = Attribute.from_key(filter[:attribute])
       model = attribute.table
       source = attribute.dataset
 

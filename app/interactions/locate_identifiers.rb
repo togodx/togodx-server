@@ -8,7 +8,7 @@ class LocateIdentifiers < ApplicationInteraction
   boolean :hierarchy, default: false
 
   def execute
-    attr = Attribute.from_api(attribute)
+    attr = Attribute.from_key(attribute)
     target = attr.dataset
     model = attr.table
 

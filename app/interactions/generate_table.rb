@@ -24,7 +24,7 @@ class GenerateTable < ApplicationInteraction
   def execute
     # replace with child categories
     annotations = self.annotations.map do |annotation|
-      table = Attribute.from_api(annotation[:attribute]).table
+      table = Attribute.from_key(annotation[:attribute]).table
       node = annotation.delete(:node)
       annotation.tap { |x| x[:nodes] = node ? table.sub_categories(node) : table.default_categories }
     end

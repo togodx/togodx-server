@@ -63,7 +63,7 @@ class DataFrame < Array
   def column(column)
     return @columns_cache[column] if @columns_cache.key?(column)
 
-    attr = Attribute.from_api(column[:attribute])
+    attr = Attribute.from_key(column[:attribute])
     dataset = attr.dataset
     model = attr.table
 

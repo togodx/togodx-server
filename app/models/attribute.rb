@@ -21,14 +21,14 @@ class Attribute < ApplicationRecord
       where(dataset: dataset)
     end
 
-    # @param [String] api
+    # @param [String] key
     # @return [Attribute]
-    def from_api(api)
-      return @from_api[api] if (@from_api ||= {})[api].present?
+    def from_key(key)
+      return @from_key[key] if (@from_key ||= {})[key].present?
 
-      @from_api[api] ||= find_by!(api: api)
+      @from_key[key] ||= find_by!(key: key)
     rescue
-      raise ApplicationRecord::AttributeNotFound, "'#{api}' not found"
+      raise ApplicationRecord::AttributeNotFound, "'#{key}' not found"
     end
   end
 
