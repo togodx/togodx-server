@@ -43,5 +43,16 @@ class Relation < ApplicationRecord
 
   def table
     Object.const_get("Relation#{id}")
+  rescue
+    klass = eval <<~RUBY
+      class Relation#{id} < ApplicationRecord
+        self.table_name = "relation#{id}"
+        include Relation::Base
+      end
+    RUBY
+
+    Object.const_set("Relation#{id}", klass)
+
+    retry
   end
 end

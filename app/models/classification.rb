@@ -108,6 +108,11 @@ class Classification < ApplicationRecord
           total: result.size
         }
       end
+
+      def is_hierarchy
+        parent_id = select(:id).where(parent_id: select(:id).where(parent_id: nil))
+        where(leaf: false).where(parent_id:).count.positive?
+      end
     end
 
     # @return [Array<String>] list of classification (leaves' ID)

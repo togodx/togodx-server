@@ -1,0 +1,49 @@
+gene_chromosome_ensembl:
+  key: gene_chromosome_ensembl
+  dataset: ensembl_gene
+  datamodel: classification
+  ontology: false
+  import: &import
+    url: https://togodx.dbcls.jp/human/sparqlist/api/%{key}
+    headers:
+      accept: application/json
+
+gene_high_level_expression_refex:
+  key: gene_high_level_expression_refex
+  dataset: ncbigene
+  datamodel: classification
+  ontology: false
+  import:
+    <<: *import
+
+protein_cellular_component_uniprot:
+  key: protein_cellular_component_uniprot
+  dataset: uniprot
+  datamodel: classification
+  ontology: false
+  import:
+    <<: *import
+
+protein_disease_related_proteins_uniprot:
+  key: protein_disease_related_proteins_uniprot
+  dataset: uniprot
+  datamodel: classification
+  ontology: false
+  import:
+    <<: *import
+
+protein_molecular_mass_uniprot:
+  key: protein_molecular_mass_uniprot
+  dataset: uniprot
+  datamodel: distribution
+  ontology: false
+  import:
+    <<: *import
+
+compound_chemical_role_chebi:
+  key: compound_chemical_role_chebi
+  dataset: chebi
+  datamodel: classification
+  ontology: false
+  import:
+    <<: *import

@@ -4,14 +4,14 @@ require 'bundler/setup'
 require 'thor'
 require 'thor/group'
 
-class Init < Thor::Group
+class Init < Thor
   include Thor::Actions
 
   source_root File.expand_path('../templates', __dir__)
 
-  desc 'Initialize application'
+  desc 'config', 'Initialize application config'
 
-  def create_database_config
+  def config
     input = ask('Select database', default: 'sqlite', limited_to: %w[sqlite postgresql])
 
     db = case input
@@ -26,13 +26,19 @@ class Init < Thor::Group
     template "database.#{db}.yml.tt", 'config/database.yml'
   end
 
-  def download_external_lib
+  REPO = 'https://github.com/dsatoh/nested_set_indexer'
+  LATEST_RELEASE = "#{REPO}/releases/latest"
+  PROG_NAME = 'nested_set_indexer'
+
+  desc 'bin', 'Install dependent binary'
+
+  def bin
+    require 'json'
     require 'open-uri'
     require 'zip'
 
     ostype = run 'uname -s', verbose: false, capture: true
     cputype = run 'uname -m', verbose: false, capture: true
-    version = ENV.fetch('NESTED_SET_INDEXER_VERSION') { 'v0.1.0' }
 
     ostype = case ostype&.chomp!
              when 'Darwin'
@@ -52,22 +58,25 @@ class Init < Thor::Group
                 raise "unknown CPU type: #{cputype}"
               end
 
-    url = URI.parse("https://github.com/dsatoh/nested_set_indexer/releases/download/#{version}/nested_set_indexer-#{cputype}-#{ostype}.zip")
+    response = URI.open(LATEST_RELEASE, 'Accept' => 'application/json')
+    tag_name = JSON.parse(response&.read)['tag_name']
+    url = URI.parse("#{REPO}/releases/download/#{tag_name}/nested_set_indexer-#{cputype}-#{ostype}.zip")
 
     inside 'vendor/bin', verbose: true do
-      remove_file 'nested_set_indexer' if File.exist? 'nested_set_indexer'
+      remove_file PROG_NAME if File.exist? PROG_NAME
 
       say "Downloading from #{url.to_s}"
       Zip::File.open_buffer(URI.open(url.to_s)) do |zip|
         zip.each do |entry|
-          next unless entry.name == 'nested_set_indexer'
+          next unless entry.name == PROG_NAME
 
           say "Extracting #{entry.name}"
           entry.extract
         end
       end
 
-      chmod 'nested_set_indexer', '+x'
+      chmod PROG_NAME, '+x'
+      system "./#{PROG_NAME}", '-V'
     end
   end
 end
@@ -85,12 +94,6 @@ class TogoDX < Thor
 
   desc 'attribute', 'Commands for attributes'
   subcommand 'attribute', AttributeTask
-
-  desc 'classification', 'Commands for classifications'
-  subcommand 'classification', ClassificationTask
-
-  desc 'distribution', 'Commands for distributions'
-  subcommand 'distribution', DistributionTask
 
   desc 'relation', 'Commands for relations'
   subcommand 'relation', RelationTask

@@ -1,6 +1,5 @@
 require 'activerecord-import'
 require 'thor'
-require_relative '../util/record_reader'
 
 class RelationTask < Thor
   include Thor::Actions

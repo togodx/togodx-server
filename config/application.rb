@@ -37,6 +37,9 @@ module TogodxServer
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
-    config.togodx = YAML.load(ERB.new(File.read(Rails.root.join('config/togodx.yml'))).result).deep_symbolize_keys
+    attributes = Rails.root.join('config/attributes.yml')
+    config.togodx = Hash.new
+                        .tap { |hash| hash[:attributes] = (attributes.exist? ? YAML.load_file(attributes) : {}) }
+                        .with_indifferent_access
   end
 end
