@@ -99,9 +99,10 @@ class Classification < ApplicationRecord
                'LIKE'
              end
 
-        result = where(%Q["#{table_name}"."classification_label" #{op} ?], "%#{term}%")
+        result = where(leaf: false)
+                   .where(%Q["#{table_name}"."classification_label" #{op} ?], "%#{term}%")
+                   .where(classification_origin: nil)
                    .order(%Q[LOWER("#{table_name}"."classification_label")])
-                   .reject { |x| x.classification.match?(/-\d+$/) } # TODO: update the DAG determination method
 
         {
           results: result.take(SUGGEST_RESULT_MAX).map { |x| { node: x.classification, label: x.classification_label } },
@@ -146,13 +147,12 @@ class Classification < ApplicationRecord
     end
 
     def parents
-      # TODO: update the DAG determination method
-      base = classification.match?(/-\d+$/) ? classification.match(/(.*)-\d+$/).captures.first : classification
+      base = classification_origin || classification
 
-      nodes = [self].concat(self.class.where(%Q["#{self.class.table_name}"."classification" LIKE ?], "#{base}-%"))
-      # nodes = [self] # TODO: simplify if the attribute is non-dag tree for better performance
-
-      nodes.map(&:parent).reject { |x| x.classification.match(/(.*)-\d+$/) }
+      self.class
+          .where(classification: base)
+          .or(self.class.where(classification_origin: base))
+          .map(&:parent)
     end
 
     # @return [ActiveRecord::Relation<Classification>]
