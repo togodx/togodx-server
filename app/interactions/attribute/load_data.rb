@@ -62,6 +62,7 @@ class Attribute
                 {
                   id: hash[:pid],
                   classification: hash[:classification],
+                  classification_origin: hash[:classification_origin],
                   classification_label: hash[:classification_label],
                   classification_parent: hash[:classification_parent],
                   leaf: hash[:leaf],
@@ -75,7 +76,6 @@ class Attribute
               total += records.size
             end
           end
-
         end
 
         logger.info(self.class) { "  -> #{'%.3f' % time} sec" }
@@ -108,7 +108,6 @@ class Attribute
             total += records.size
           end
         end
-
       end
 
       logger.info(self.class) { "  -> #{'%.3f' % time} sec" }
