@@ -153,6 +153,7 @@ class Classification < ApplicationRecord
           .where(classification: base)
           .or(self.class.where(classification_origin: base))
           .map(&:parent)
+          .reject(&:classification_origin)
     end
 
     # @return [ActiveRecord::Relation<Classification>]
