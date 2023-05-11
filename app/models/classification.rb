@@ -89,8 +89,6 @@ class Classification < ApplicationRecord
           .distinct
       end
 
-      SUGGEST_RESULT_MAX = 10
-
       def suggest(term)
         op = case ActiveRecord::Base.connection_db_config.adapter
              when 'postgresql'
@@ -105,7 +103,7 @@ class Classification < ApplicationRecord
                    .order(%Q[LOWER("#{table_name}"."classification_label")])
 
         {
-          results: result.take(SUGGEST_RESULT_MAX).map { |x| { node: x.classification, label: x.classification_label } },
+          results: result.map { |x| { node: x.classification, label: x.classification_label } },
           total: result.size
         }
       end
