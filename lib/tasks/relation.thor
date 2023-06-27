@@ -12,7 +12,7 @@ class RelationTask < Thor
     end
   end
 
-  desc 'import <FILE>', 'Import relations with csv, tsv or json)'
+  desc 'import <FILE>', 'Import relations with csv, tsv or json'
   option :source, aliases: '-s', type: :string, required: true, desc: 'Source dataset'
   option :target, aliases: '-t', type: :string, required: true, desc: 'Target dataset'
 
