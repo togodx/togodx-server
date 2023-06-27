@@ -21,10 +21,12 @@ class Attribute
       logger.info(self.class) { "Start importing #{key}" }
       logger.debug(self.class) { "Executed with #{inputs.inspect}" } if debug
 
-      attribute = compose CreateAttribute, **inputs
-      file = compose FetchData, **inputs
-      table = compose CreateTable, **inputs
-      compose LoadData, **inputs.merge(file:, table:) if table.present?
+      compose CreateAttribute, inputs
+      table = compose CreateTable, inputs
+      if table.present?
+        file = compose FetchData, inputs
+        compose LoadData, inputs.merge(file:, table:)
+      end
     end
   end
 end

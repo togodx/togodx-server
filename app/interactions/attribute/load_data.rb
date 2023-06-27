@@ -15,7 +15,7 @@ class Attribute
     boolean :ontology, default: false
     hash :metadata, default: {}, strip: false
     interface :table, methods: %i[import]
-    interface :file, methods: %i[to_s]
+    object :file, class: Pathname, converter: :new
 
     def execute
       attribute = Attribute.from_key(key)
@@ -32,7 +32,7 @@ class Attribute
     def load_classification
       tmpdir = Dir.mktmpdir
 
-      format = File.extname(file)[1..] || raise('Failed to obtain file extension')
+      format = file.extname[1..] || raise('Failed to obtain file extension')
 
       FileUtils.cd tmpdir do
         logger.info(self.class) { 'Indexing for nested set' }
@@ -45,7 +45,7 @@ class Attribute
           cmd << "--from #{format}"
           cmd << '--to tsv'
           cmd << "--output #{output}"
-          cmd << File.absolute_path(file)
+          cmd << file.realpath.to_s
 
           exec_external_command(*cmd)
         end
@@ -86,7 +86,7 @@ class Attribute
     end
 
     def load_distribution
-      format = File.extname(file)[1..] || raise('Failed to obtain file extension')
+      format = file.extname[1..] || raise('Failed to obtain file extension')
 
       logger.info(self.class) { 'Loading distribution' }
 
@@ -94,7 +94,7 @@ class Attribute
       time = Benchmark.realtime do
 
         ActiveRecord::Base.transaction do
-          RecordReader.open(file, format: format).records.each_slice(1000) do |g|
+          RecordReader.open(file.to_s, format: format).records.each_slice(1000) do |g|
             records = g.map do |hash|
               {
                 distribution: hash[:id],

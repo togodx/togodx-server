@@ -12,100 +12,41 @@ class RelationTask < Thor
     end
   end
 
-  desc 'import <FILE>', 'Import relations'
-  option :source, type: :string, required: true, desc: 'Dataset name'
-  option :target, type: :string, required: true, desc: 'Dataset name'
-  option :format, aliases: '-f', type: :string, desc: 'File format', enum: %w[csv tsv json]
+  desc 'import <FILE>', 'Import relations with csv, tsv or json)'
+  option :source, aliases: '-s', type: :string, required: true, desc: 'Source dataset'
+  option :target, aliases: '-t', type: :string, required: true, desc: 'Target dataset'
 
-  def import(file = '-')
+  def import(file)
     require_relative '../../config/environment'
 
-    format = options[:format] || File.extname(file)[1..] || raise("No value provided for options '--format'")
+    Relation::EntryPoint.run!(source: options[:source], target: options[:target], file:)
+  end
 
-    if (not_found = [options[:source], options[:target]].reject { |x| Attribute.find_by(dataset: x) }).present?
-      warn "Dataset name not found in attributes: #{not_found.join(', ')}"
-      exit false
-    end
+  desc 'drop', 'Drop a relation'
+  option :source, aliases: '-s', type: :string, required: true, desc: 'Source dataset'
+  option :target, aliases: '-t', type: :string, required: true, desc: 'Target dataset'
 
-    if options[:target] < options[:source]
-      warn '`source` must precede `target` in alphabetical order.'
-      exit false
-    end
+  def drop
+    require_relative '../../config/environment'
 
-    create_table if table_absent
+    Relation::DropTable.run!(source: options[:source], target: options[:target])
+  end
 
-    table = Relation.from_pair(options[:source], options[:target]).table
+  desc 'drop_all', 'Drop all attributes'
 
-    total = 0
-    ActiveRecord::Base.transaction do
-      say "Importing relations to #{table.table_name}"
-      time = Benchmark.realtime do
-        RecordReader.open(file, format: format).records.each_slice(1000) do |g|
-          records = g.map { |hash| hash.values_at(:source, :target) }
-          table.import %i[source target], records, on_duplicate_key_ignore: true
-          total += records.size
-        end
-      end
-      say "  -> #{'%.3f' % time} sec"
+  def drop_all
+    require_relative '../../config/environment'
 
-      say "Imported #{total} #{'relation'.pluralize(total)}"
+    Rails.configuration.togodx.dataset_pairs.each do |source, target|
+      Relation::DropTable.run!(source:, target:)
     end
   end
 
-  private
+  desc 'clear_cache', 'Clear cache'
 
-  no_commands do
-    def table_absent
-      begin
-        return true unless (relation = Relation.find_by(source: options[:source], target: options[:target]))
+  def clear_cache
+    require_relative '../../config/environment'
 
-        relation.table.first
-
-        false
-      rescue ActiveRecord::StatementInvalid
-        # Table does not exist
-        true
-      end
-    end
-
-    def create_table
-      relation = Relation.create!(source: options[:source], target: options[:target])
-      reverse = Relation.create!(source: options[:target], target: options[:source])
-
-      schema = File.read(Rails.root.join('db', 'schema.rb'))
-      m = schema.match(/^\s*create_table "relation".*?end$/m)
-      raise RuntimeError, 'Failed to obtain migration definition' unless m
-
-      table_name = "relation#{relation.id}"
-      ActiveRecord::Migration.class_eval do
-        eval m[0].gsub('relation', table_name)
-      end
-
-      case ActiveRecord::Base.connection.adapter_name
-      when 'PostgreSQL'
-        ActiveRecord::Base.connection.execute <<~SQL
-          CREATE OR REPLACE VIEW "relation#{reverse.id}" AS
-          SELECT "id", "target" AS "source", "source" AS "target"
-          FROM "#{table_name}";
-        SQL
-      when 'SQLite'
-        ActiveRecord::Base.connection.execute <<~SQL
-          CREATE VIEW IF NOT EXISTS "relation#{reverse.id}" AS
-          SELECT "id", "target" AS "source", "source" AS "target"
-          FROM "#{table_name}";
-        SQL
-      else
-        raise RuntimeError, 'Unsupported database adapter.'
-      end
-
-      klass = Class.new(ApplicationRecord) do
-        include Relation::Base
-      end
-      klass.table_name = "#{table_name}"
-
-      Object.const_set(table_name.classify.to_sym, klass)
-
-      true
-    end
+    FileUtils.rm_rf ApplicationInteraction.new.cache_dir / 'relations'
   end
 end

@@ -41,7 +41,9 @@ class Attribute
     private
 
     def cache_file
-      (path = Dir.glob(cache_dir.join("#{key}.*")).first) or return
+      dir = (cache_dir / 'attributes').tap { |dir| FileUtils.mkdir_p dir unless dir.exist? }
+
+      (path = Dir.glob(dir / "#{key}.*").first) or return
 
       Pathname.new(path)
     end
@@ -113,7 +115,7 @@ class Attribute
     end
 
     def save_response
-      file_name = cache_dir.join("#{key}.#{extension}")
+      file_name = cache_dir / 'attributes' / "#{key}.#{extension}"
 
       begin
         File.open(file_name, 'w') do |f|

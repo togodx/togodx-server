@@ -1,0 +1,14 @@
+ensembl_gene:
+  key: ensembl_gene
+
+ncbigene:
+  key: ncbigene
+
+uniprot:
+  key: uniprot
+
+chebi:
+  key: chebi
+
+mondo:
+  key: mondo

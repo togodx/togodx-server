@@ -33,6 +33,7 @@
 /config/credentials.yml.enc
 /config/attributes.yml
 /config/database.yml
+/config/datasets.yml
 
 /.env
 /data

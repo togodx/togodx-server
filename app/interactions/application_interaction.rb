@@ -11,6 +11,6 @@ class ApplicationInteraction < ActiveInteraction::Base
   end
 
   def cache_dir
-    @cache_dir ||= Rails.root.join('tmp', 'cache', 'attributes').tap { |dir| FileUtils.mkdir_p dir unless dir.exist? }
+    @cache_dir ||= Rails.root.join('tmp', 'cache').tap { |dir| FileUtils.mkdir_p dir }
   end
 end

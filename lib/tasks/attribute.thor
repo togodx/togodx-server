@@ -16,9 +16,7 @@ class AttributeTask < Thor
   def import
     require_relative '../../config/environment'
 
-    attributes = Rails.configuration.togodx[:attributes]
-
-    attributes.each do |_key, config|
+    Rails.configuration.togodx[:attributes].each do |_key, config|
       Attribute::EntryPoint.run! **config
     end
   end
@@ -74,6 +72,6 @@ class AttributeTask < Thor
   def clear_cache
     require_relative '../../config/environment'
 
-    FileUtils.rm_rf ApplicationInteraction.new.cache_dir
+    FileUtils.rm_rf ApplicationInteraction.new.cache_dir / 'attributes'
   end
 end

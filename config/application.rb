@@ -37,9 +37,32 @@ module TogodxServer
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
-    attributes = Rails.root.join('config/attributes.yml')
-    config.togodx = Hash.new
-                        .tap { |hash| hash[:attributes] = (attributes.exist? ? YAML.load_file(attributes) : {}) }
-                        .with_indifferent_access
+    ATTRIBUTES_YAML = Rails.root / 'config' / 'attributes.yml'
+    DATASETS_YAML = Rails.root / 'config' / 'datasets.yml'
+
+    def self.load_config(file)
+      file.exist? ? YAML.load_file(file) : {}
+    end
+
+    togodx = {
+      attributes: load_config(ATTRIBUTES_YAML),
+      datasets: load_config(DATASETS_YAML)
+    }.with_indifferent_access
+
+    class << togodx
+      def validate
+        undefined = self[:attributes].map { |_, v| v[:dataset] }.uniq - self[:datasets].map { |_, v| v[:key] }.uniq
+
+        raise RuntimeError, "Dataset definition not found: #{undefined.join(', ')} in #{DATASETS_YAML}" if undefined.present?
+
+        self
+      end
+
+      def dataset_pairs
+        self[:attributes].map { |_, v| v[:dataset] }.uniq.sort.combination(2)
+      end
+    end
+
+    config.togodx = togodx.validate
   end
 end

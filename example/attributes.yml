@@ -47,3 +47,19 @@ compound_chemical_role_chebi:
   ontology: false
   import:
     <<: *import
+
+gene_transcription_factors_chip_atlas:
+  key: gene_transcription_factors_chip_atlas
+  dataset: ensembl_gene
+  datamodel: classification
+  ontology: false
+  import:
+    <<: *import
+
+disease_diseases_mondo:
+  key: disease_diseases_mondo
+  dataset: mondo
+  datamodel: classification
+  ontology: true
+  import:
+    <<: *import
