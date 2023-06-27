@@ -16,9 +16,8 @@ class Classification < ApplicationRecord
       def breakdown(node, mode = 'numerical_desc', **options)
         classification = find_by!(classification: node.presence || root.classification)
 
-        children = classification.child_nodes_excluding_no_leaves
+        children = classification.child_nodes
                                  .map { |child| child.breakdown }
-                                 .reject { |x| x[:count].zero? }
 
         children = sort_breakdown(children, mode)
 
@@ -40,7 +39,7 @@ class Classification < ApplicationRecord
         count_total = where(leaf: true).distinct.count(:classification)
         count_queries = where(leaf: true).where(classification: queries).distinct.count(:classification)
 
-        children = classification.child_nodes_excluding_no_leaves
+        children = classification.child_nodes
                                  .map { |child| child.locate(queries, count_total, count_queries) }
 
         if options[:hierarchy]
@@ -155,7 +154,7 @@ class Classification < ApplicationRecord
     end
 
     # @return [ActiveRecord::Relation<Classification>]
-    def children_without_leaf
+    def child_nodes
       children.where(leaf: false)
     end
 
@@ -164,16 +163,8 @@ class Classification < ApplicationRecord
       descendants.where(leaf: true)
     end
 
-    def children_excluding_no_leaves
-      children.reject { |x| !x.leaf && x.descendant_leaves.count(:classification).zero? }
-    end
-
-    def child_nodes_excluding_no_leaves
-      children_without_leaf.reject { |x| !x.leaf && x.descendant_leaves.count(:classification).zero? }
-    end
-
     def tip?
-      children_excluding_no_leaves.all?(&:leaf)
+      children.all?(&:leaf)
     end
   end
 end
