@@ -55,7 +55,7 @@ class Relation
       begin
         table = relation(source, target).table
         table.first
-        logger.warn(self.class) { "Relation for #{source} and #{target} already exists. Drop the table by `#{$0} relation drop #{source} #{target}`, first." }
+        logger.warn(self.class) { "Relation for #{source} and #{target} already exists. Drop the table by `#{$0} relation drop --source=#{source} --target=#{target}`, first." }
 
         table
       rescue ActiveRecord::StatementInvalid
