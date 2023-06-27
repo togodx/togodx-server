@@ -19,7 +19,14 @@ class RelationTask < Thor
   def import(file)
     require_relative '../../config/environment'
 
-    Relation::EntryPoint.run!(source: options[:source], target: options[:target], file:)
+    source = options[:source]
+    target = options[:target]
+
+    datasets = Rails.configuration.togodx[:datasets]
+    datasets.find { |_, v| v[:key] == source } || raise(ArgumentError, "Dataset definition not found: #{source} in #{TogodxServer::Application::DATASETS_YAML}")
+    datasets.find { |_, v| v[:key] == target } || raise(ArgumentError, "Dataset definition not found: #{target} in #{TogodxServer::Application::DATASETS_YAML}")
+
+    Relation::EntryPoint.run!(source:, target:, file:)
   end
 
   desc 'drop', 'Drop a relation'
