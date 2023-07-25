@@ -164,7 +164,7 @@ class Classification < ApplicationRecord
     end
 
     def tip?
-      children.all?(&:leaf)
+      children.where(leaf: false).count.zero?
     end
   end
 end
