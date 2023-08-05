@@ -1,30 +1,58 @@
 class Relation < ApplicationRecord
-  class << self
-    # @param [String] source
-    # @param [String] target
-    # @param [Array<String>] entries
-    # @param [Hash] options
-    # @return [Hash]
-    def convert(source, target, entries, **options)
-      pairs(source, target, entries, **options)
-        .group_by { |x| x[0] }
-        .map { |k, v| [k, v.map { |x| x[1] }] }
-        .to_h
-    end
+  module Base
+    extend ActiveSupport::Concern
 
-    # @param [String] source
-    # @param [String] target
-    # @param [Array<String>] entries
-    # @param [Hash] options
-    # @return [Array<Array<String>>]
-    def pairs(source, target, entries, **options)
-      if options[:reverse]
-        where(db1: source, db2: target, entry2: entries)
-          .pluck(:entry2, :entry1)
-      else
-        where(db1: source, db2: target, entry1: entries)
-          .pluck(:entry1, :entry2)
+    module ClassMethods
+      # @param [Array<String>] entries
+      # @param [Hash] options
+      # @return [Hash]
+      def convert(entries, **options)
+        pairs(entries, **options)
+          .group_by { |x| x[0] }
+          .map { |k, v| [k, v.map { |x| x[1] }] }
+          .to_h
+      end
+
+      # @param [Array<String>] entries
+      # @param [Hash] options
+      # @return [Array<Array<String>>]
+      def pairs(entries, **options)
+        if options[:reverse]
+          where(target: entries).pluck(:target, :source)
+        else
+          where(source: entries).pluck(:source, :target)
+        end
       end
     end
+  end
+
+  class << self
+    def from_pair(source, target)
+      key = [source, target].join('-')
+      return @from_pair[key] if (@from_pair ||= {}).key?(key)
+
+      @from_pair[key] ||= find_by!(source: source, target: target)
+    rescue
+      raise ApplicationRecord::RelationNotFound, "'#{source}' and '#{target}' not found"
+    end
+
+    def datasets
+      Attribute.distinct.pluck(:dataset).permutation(2).filter { |src, dst| src < dst }
+    end
+  end
+
+  def table
+    Object.const_get("Relation#{id}")
+  rescue
+    klass = eval <<~RUBY
+      class Relation#{id} < ApplicationRecord
+        self.table_name = "relation#{id}"
+        include Relation::Base
+      end
+    RUBY
+
+    Object.const_set("Relation#{id}", klass)
+
+    retry
   end
 end

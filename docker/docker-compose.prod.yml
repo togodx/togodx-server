@@ -18,7 +18,7 @@ services:
           max-file: "1"
 
   app:
-    image: ruby:3.0.2
+    image: ruby:3.1.0
     environment:
       RAILS_ENV: production
       RAILS_MAX_THREADS: 10

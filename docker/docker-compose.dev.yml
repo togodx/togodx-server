@@ -2,7 +2,7 @@ version: "3"
 
 services:
   app:
-    image: ruby:3.0.2
+    image: ruby:3.1.0
     command: bash -c "bundle install && rm -f tmp/pids/server.pid && rails s -b '0.0.0.0'"
     volumes:
       - .:/app

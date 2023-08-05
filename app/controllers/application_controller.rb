@@ -4,7 +4,23 @@ class ApplicationController < ActionController::API
   def breakdown
     breakdown = CountBreakdown.run(breakdown_params)
 
-    render_json breakdown.result, status: breakdown.valid? ? :ok : :bad_request
+    if breakdown.valid?
+      render_json breakdown.result
+    else
+      render_json({ errors: breakdown.errors.full_messages }, status: :bad_request)
+    end
+  end
+
+  # GET /suggest/:attribute
+  # POST /suggest/:attribute
+  def suggest
+    suggest = SuggestTerm.run(suggest_params)
+
+    if suggest.valid?
+      render_json suggest.result
+    else
+      render_json({ errors: suggest.errors.full_messages }, status: :bad_request)
+    end
   end
 
   # GET /locate
@@ -15,9 +31,14 @@ class ApplicationController < ActionController::API
     location = LocateIdentifiers.run(attribute: params[:attribute],
                                      source: params[:dataset],
                                      queries: JSON.parse(params[:queries] || '[]'),
-                                     node: params[:node].presence)
+                                     node: params[:node].presence,
+                                     hierarchy: params[:hierarchy])
 
-    render_json location.result, status: location.valid? ? :ok : :bad_request
+    if location.valid?
+      render_json location.result
+    else
+      render_json({ errors: location.errors.full_messages }, status: :bad_request)
+    end
   end
 
   # GET /aggregate
@@ -29,7 +50,11 @@ class ApplicationController < ActionController::API
                                       filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
                                       queries: JSON.parse(params[:queries] || '[]'))
 
-    render_json aggregate.result, status: aggregate.valid? ? :ok : :bad_request
+    if aggregate.valid?
+      render_json aggregate.result
+    else
+      render_json({ errors: aggregate.errors.full_messages }, status: :bad_request)
+    end
   end
 
   # GET /dataframe
@@ -42,23 +67,36 @@ class ApplicationController < ActionController::API
                                   filters: JSON.parse(params[:filters] || '[]').map(&:symbolize_keys),
                                   annotations: JSON.parse(params[:annotations] || '[]').map(&:symbolize_keys))
 
-    render_json dataframe.result.to_json, status: dataframe.valid? ? :ok : :bad_request
+    if dataframe.valid?
+      render_json dataframe.result
+    else
+      render_json({ errors: dataframe.errors.full_messages }, status: :bad_request)
+    end
   end
 
   private
 
   def breakdown_params
     params
-      .permit(:attribute, :node, :order)
+      .permit(:attribute, :hierarchy, :node, :order)
+      .to_h
+      .symbolize_keys
+      .tap { |hash| hash.merge!(hierarchy: hash.key?(:hierarchy) && hash[:hierarchy] != false) }
+  end
+
+  def suggest_params
+    params
+      .permit(:attribute, :term)
       .to_h
       .symbolize_keys
   end
 
   def locate_params
     params
-      .permit(:attribute, :node, :dataset, :queries)
+      .permit(:attribute, :hierarchy, :node, :dataset, :queries)
       .to_h
       .symbolize_keys
+      .tap { |hash| hash.merge!(hierarchy: hash.key?(:hierarchy) && hash[:hierarchy] != false) }
   end
 
   def aggregate_params

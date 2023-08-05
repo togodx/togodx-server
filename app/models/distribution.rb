@@ -6,7 +6,7 @@ class Distribution < ApplicationRecord
 
     module ClassMethods
       # @return [Array<Hash>]
-      def breakdown(_node = nil, mode = nil)
+      def breakdown(_node = nil, mode = nil, **_options)
         mode ||= 'id_asc'
         sort_breakdown(histogram, mode).map { |hash| hash.merge(node: hash[:node].to_s) }
       end
@@ -38,7 +38,7 @@ class Distribution < ApplicationRecord
         end
       end
 
-      def locate(queries, node = nil)
+      def locate(queries, _node = nil, **_options)
         count_total = count
         count_queries = where(distribution: queries).count
 
@@ -62,7 +62,7 @@ class Distribution < ApplicationRecord
       end
 
       def default_categories
-        all.map(&:distribution)
+        distinct(:bin_id).order(:bin_id).pluck(:bin_id)
       end
 
       def sub_categories
@@ -73,6 +73,10 @@ class Distribution < ApplicationRecord
         select('"distribution" AS "identifier", "distribution_label" AS "label"')
           .where(distribution: queries)
           .distinct
+      end
+
+      def suggest(_term)
+        {}
       end
     end
   end

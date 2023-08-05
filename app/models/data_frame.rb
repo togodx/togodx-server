@@ -1,4 +1,4 @@
-class DataFrame
+class DataFrame < Array
   attr_reader :target
   attr_reader :queries
 
@@ -12,9 +12,13 @@ class DataFrame
     @columns = columns.map(&:symbolize_keys)
     @columns_cache = {}
     @entry_cache = {}
+
+    concat data
   end
 
-  def to_json
+  private
+
+  def data
     @queries.map do |query|
       {
         index: {
@@ -41,8 +45,6 @@ class DataFrame
     end
   end
 
-  private
-
   def labels
     return @labels if @labels
 
@@ -61,14 +63,16 @@ class DataFrame
   def column(column)
     return @columns_cache[column] if @columns_cache.key?(column)
 
-    attr = Attribute.from_api(column[:attribute])
+    attr = Attribute.from_key(column[:attribute])
     dataset = attr.dataset
     model = attr.table
 
     entries = if @target == dataset
                 @queries.map { |x| [x, [x]] }.to_h
               else
-                @entry_cache[dataset] ||= Relation.convert(dataset, @target, @queries, reverse: true)
+                @entry_cache[dataset] ||= Relation.from_pair(dataset, @target)
+                                                  .table
+                                                  .convert(@queries, reverse: true)
               end
 
     attributes = model

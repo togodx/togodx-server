@@ -1,5 +1,4 @@
 require 'thor'
-require_relative '../util/record_reader'
 
 class AttributeTask < Thor
   include Thor::Actions
@@ -12,29 +11,14 @@ class AttributeTask < Thor
     end
   end
 
-  desc 'import <FILE>', 'Import attributes to database'
-  option :format, aliases: '-f', type: :string, desc: 'File format', enum: %w[csv tsv json]
+  desc 'import', 'Import attributes to database'
 
-  def import(file = '-')
+  def import
     require_relative '../../config/environment'
 
-    reader_options = {
-      format: options[:format] || File.extname(file)[1..] || raise("No value provided for options '--format'")
-    }.compact
-
-    total = 0
-    i = 0
-    RecordReader.open(file, **reader_options).records.each do |record|
-      total += 1
-      Attribute.find_or_create_by(api: record[:api]) do |attribute|
-        i += 1
-        attribute.dataset = record[:dataset]
-        attribute.datamodel = record[:datamodel]
-      end
+    Rails.configuration.togodx[:attributes].each do |_key, config|
+      Attribute::EntryPoint.run! **config
     end
-
-    say "Imported #{i} #{'attribute'.pluralize(i)}" \
-        "#{" (#{total - i} #{'attribute'.pluralize(total - i)} already exist)" unless (total - i).zero? }"
   end
 
   desc 'list', 'List all imported attributes'
@@ -43,20 +27,51 @@ class AttributeTask < Thor
   def list
     require_relative '../../config/environment'
 
-    case options[:format]
-    when /^[ct]sv$/
-      output = CSV.generate(col_sep: options[:format] == 'csv' ? ',' : "\t") do |csv|
-        csv << (headers = Attribute.column_names)
-        Attribute.all.each do |attribute|
-          csv << attribute.attributes.values_at(*headers)
-        end
-      end
-    when 'json'
-      output = JSON.pretty_generate(Attribute.all.map(&:attributes))
-    else
-      raise ArgumentError, "Unknown format: #{options[:format]}"
-    end
+    output = case options[:format]
+             when /^[ct]sv$/
+               CSV.generate(col_sep: options[:format] == 'csv' ? ',' : "\t") do |csv|
+                 csv << (headers = Attribute.column_names)
+                 Attribute.all.each do |attribute|
+                   csv << attribute.attributes.values_at(*headers)
+                 end
+               end
+             when 'json'
+               JSON.pretty_generate(Attribute.all.map(&:attributes))
+             else
+               raise ArgumentError, "Unknown format: #{options[:format]}"
+             end
 
     puts output
+  end
+
+  desc 'drop <KEY1>, <KEY2>, ...', 'Drop an attribute'
+
+  def drop(*keys)
+    require_relative '../../config/environment'
+
+    keys.each do |key|
+      sql = <<~SQL
+      DROP TABLE IF EXISTS table#{Attribute.from_key(key).id};
+      SQL
+
+      say_error sql
+      ActiveRecord::Base.connection.execute sql
+    end
+  end
+
+  desc 'drop_all', 'Drop all attributes'
+
+  def drop_all
+    require_relative '../../config/environment'
+
+    drop(*Attribute.all.pluck(:key))
+  end
+
+  desc 'clear_cache', 'Clear cache'
+
+  def clear_cache
+    require_relative '../../config/environment'
+
+    FileUtils.rm_rf ApplicationInteraction.new.cache_dir / 'attributes'
   end
 end
